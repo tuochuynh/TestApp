@@ -1,0 +1,103 @@
+﻿
+@{
+    ViewBag.Title = "Preferences";
+}
+
+
+<div class="container mainContainer">
+    <div class="row">
+        <div id="leftside" class="col-md-3"></div>
+        <div id="rightside" class="col-xs-12 col-sm-12 col-md-9" style="min-height:836px">
+            <h1 id="pageTitle" class="article-title">Preferences</h1>
+            <h3 class="header">Welcome to the set up page for Shopify Fastway App!</h3>
+            <p>Please configure the below settings accordingly</p>
+            <table style="width:100%">
+                <tbody>
+                    <tr>
+                        <td class="TableLinesHZFWparaBlu" colspan="2">Store details</td>
+                    </tr>
+                    <tr>
+                        <td>Store Name:<span style="color:red;font-weight:bold">*</span></td>
+                        <td><input id="tbxStoreName" class="form-control" placeholder="Store Name" type="text" /></td>
+                    </tr>
+                    <tr>
+                        <td>Address:<span style="color:red;font-weight:bold">*</span></td>
+                        <td><input id="tbxStoreAddress1" class="form-control" placeholder="Address" type="text" /></td>
+                    </tr>
+                    <tr>
+                        <td>Suburb:<span style="color:red;font-weight:bold">*</span></td>
+                        <td><input id="tbxStoreSuburb" class="form-control" placeholder="Suburb" type="text" /></td>
+                    </tr>
+                    <tr>
+                        <td>PostCode:<span style="color:red;font-weight:bold">*</span></td>
+                        <td><input id="tbxStorePostcode" class="form-control" placeholder="Postcode" type="text" /></td>
+                    </tr>
+                    <tr>
+                        <td class="TableLinesHZFWparaBlu" colspan="2">Fastway API Settings</td>
+                    </tr>
+                    <tr>
+                        <td>API Key:<span style="color:red;font-weight:bold">*</span></td>
+                        <td><input id="tbxApiKey" class="form-control" placeholder="API Key" type="text" /></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-xs-6">
+                    <a class="btn btn-primary" onclick="updatePreferences()">
+                        Update Preferences
+                    </a>
+                </div>
+            </div>
+            <script type="text/javascript">
+                //populating store details
+                var shopDetails = JSON.parse(document.getElementById('shopDetails').value);
+                document.getElementById("tbxStoreName").value = shopDetails.StoreName;
+                document.getElementById("tbxStoreAddress1").value = shopDetails.StoreAddress1;
+                document.getElementById("tbxStoreSuburb").value = shopDetails.Suburb;
+                document.getElementById("tbxStorePostcode").value = shopDetails.Postcode;
+                document.getElementById("tbxApiKey").value = shopDetails.FastwayApiKey;
+            </script>
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    function updatePreferences() {
+        //Check if there is any changes
+        var shopDetails = JSON.parse(document.getElementById('shopDetails').value);
+        if (document.getElementById("tbxStoreName").value != shopDetails.StoreName ||
+            document.getElementById("tbxStoreAddress1").value != shopDetails.StoreAddress1 ||
+            document.getElementById("tbxStoreSuburb").value != shopDetails.Suburb ||
+            document.getElementById("tbxStorePostcode").value != shopDetails.Postcode ||
+            document.getElementById("tbxApiKey").value != shopDetails.FastwayApiKey) {
+            //if yes, preparing data to be updated
+            var updatedDetails = {
+                ShopUrl: shopDetails.StoreUrl,
+                StoreName: document.getElementById("tbxStoreName").value,
+                StoreAddress1: document.getElementById("tbxStoreAddress1").value,
+                Suburb: document.getElementById("tbxStoreSuburb").value,
+                Postcode: document.getElementById("tbxStorePostcode").value,
+                ApiKey: document.getElementById("tbxApiKey").value
+            };
+            //ajax element to communicate with backend to update data
+            $.ajax({
+                type: "POST",
+                url: "/Home/UpdatePreferences",
+                data: JSON.stringify(updatedDetails),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {//on success
+                    alert("Update: " + data.Updated);
+                },
+                error: function () {//error
+                    alert("FAILED");
+                }
+            });
+        } else {//if there is no changes
+            alert('No change made')
+        }
+
+    }
+</script>

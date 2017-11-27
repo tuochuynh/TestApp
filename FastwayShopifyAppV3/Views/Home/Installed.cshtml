@@ -1,0 +1,13 @@
+﻿@{
+    ViewBag.Title = "Installed";
+}
+
+<p>Please update your details before attempting to create labels</p>
+
+<p>If your details has been updated, please nagigate to your <a onclick="redirectToOrders()" href="javascript:void(0);">Orders</a> page</p>
+
+<script>
+    function redirectToOrders() {
+        top.location.href = "https://" + document.getElementById('shopUrl').value + "/admin/apps";
+    }
+</script>

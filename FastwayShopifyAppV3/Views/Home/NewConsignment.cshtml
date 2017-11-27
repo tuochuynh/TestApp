@@ -1,0 +1,438 @@
+﻿
+@{
+    ViewBag.Title = "NewConsignment";
+}
+
+<div class="container">
+    <div class="row">
+        <div id="rightside" class="col-xs-12 col-sm-12 col-md-9" style="min-height:836px;">
+            <div id="pageTitle" class="article-header"><h1 style="color:#003184">New Consignment</h1></div>
+            <div class="panel panel-body">
+                <div class="panel-body" style="padding:3px">
+                    <label id="warning1" style="display:none;padding:1px" class="label-warning">Test</label>
+                    <label id="warning2" style="display:none;padding:1px" class="label-warning">Test</label>
+                    <label id="warning3" style="display:none;padding:1px" class="label-warning">Test</label>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding-left: 0">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        Receiver Details
+                    </div>
+                    <div class="panel-body">
+                        <div class="address">
+                            <label>Name:<span style="color:red;font-weight:bold">*</span></label>
+                            <input id="tbxCustomerName" class="form-control" placeholder="Company or Name" type="text" style="" />
+                        </div>
+                        <div class="address">
+                            <label>Address line 1:<span style="color:red;font-weight:bold">*</span></label>
+                            <input id="tbxDeliveryAddress" class="form-control" placeholder="Address line 1" type="text" style="" />
+                        </div>
+                        <div class="address">
+                            <label>Address line 2:</label>
+                            <input id="tbxDeliveryAddress2" class="form-control" placeholder="Address line 1" type="text" style="" />
+                        </div>
+                        <div class="row">
+                            <div class="address col-md-6">
+                                <label>Suburb:<span style="color:red;font-weight:bold">*</span></label>
+                                <input id="tbxDeliveryCity" class="form-control" placeholder="Suburb" type="text" style="" />
+                            </div>
+                            <div class="address col-md-6">
+                                <label>Postcode:<span style="color:red;font-weight:bold">*</span></label>
+                                <input id="tbxDeliveryPostcode" class="form-control" placeholder="Postcode" type="text" style="" />
+                            </div>
+                        </div>
+                        <div class="address">
+                            <label>Region:</label>
+                            <input id="tbxRegion" class="form-control" placeholder="Region:" type="text" style="" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding-right: 0">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Options</div>
+                    <div class="panel-body">
+                        <div class="address">
+                            <label>Contact Name:</label>
+                            <input id="tbContactName" class="form-control" type="text" style="width:100%"/>
+                        </div>
+                        <div class="address">
+                            <label>Email:</label>
+                            <input id="tbEmail" class="form-control" type="text" />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Phone Number:</label>
+                                <input id="tbPhone" class="form-control" type="text" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Mobile:</label>
+                                <input id="tbPhone" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="width:100%">
+                    <label>Special Instructions</label>
+                    <input id="tbInstructions" class="form-control" style="width:100%" type="text" />
+                </div>
+            </div>
+            <table class="table-spacing pad-bottom-50 pad-top-10" style="border-collapse:separate; width:100%">
+                <tbody>
+                    <tr>
+                        <td colspan="3">
+                            <table id="tblItems" class="list" style="width:100%">
+                                <tbody>
+                                    <tr class="headerFullBox">
+                                        <td>Reference</td>
+                                        <td>Packaging</td>
+                                        <td>Items</td>
+                                        <td>Weight</td>
+                                        <td>Cubic</td>
+                                        <td>Length</td>
+                                        <td>Width</td>
+                                        <td>Height</td>
+                                        <td>Cost</td>
+                                        <td>Extra</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-xs-6">
+                    <a class="btn btn-primary" onclick="printLabels()">
+                        Print labels
+                    </a>
+                    <a class="btn btn-primary" onclick="addPackage()">
+                        Add package
+                    </a>
+                    <a class="btn btn-danger" onclick="reset()">
+                        Reset
+                    </a>
+                </div>
+                <div class="col-xs-6"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+    //add first package
+    addPackage();
+    //Check for address and populate if required
+    var addressString = document.getElementById('deliveryAddress').value;
+
+    if (addressString == "NoAddress") {//Warning for no address
+        document.getElementById('warning1').innerText = "No address detail found";
+        document.getElementById('warning1').style.display = "block";
+    } else if (addressString == "MoreThanOne") {//Warning for more than one address details found
+        document.getElementById('warning1').innerText = "More than one addresses found";
+        document.getElementById('warning1').style.display = "block";
+    } else {//only one address found, populate address details
+        var addressDetails = JSON.parse(addressString);
+        document.getElementById('tbxCustomerName').value = addressDetails.Name;
+        document.getElementById('tbxDeliveryAddress').value = addressDetails.Address1;
+        document.getElementById('tbxDeliveryAddress2').value = addressDetails.Address2 || "";
+        document.getElementById('tbxDeliveryCity').value = addressDetails.City;
+        document.getElementById('tbxDeliveryPostcode').value = addressDetails.Zip;
+        document.getElementById('tbxRegion').value = addressDetails.Province;
+    }
+    //reset parcel details once type of parcel changed
+    function resetDetails(ele) {
+        var item = $(ele).attr("id").replace('packaging', '');
+        document.getElementById("items" + item).value = 1;
+        document.getElementById("weight" + item).value = "";
+        document.getElementById("totalCost" + item).value = "";
+        document.getElementById("extra" + item).innerHTML = "";
+    }
+    //recalculate price once number of items changed
+    function reCalculate(ele) {
+        var item = $(ele).attr("id").replace('items', '');
+
+        if (ele.value <= 0) {
+            document.getElementById("totalCost" + item).value = "";
+            document.getElementById("extra" + item).innerHTML = "";
+        } else if (document.getElementById("weight" + item).value > 0 && document.getElementById("weight" + item).value != "") {
+            serviceQuery(document.getElementById("weight"+item));
+        }
+    }
+    //query for available service
+    function serviceQuery(ele) {
+        //get package id
+        var item = $(ele).attr("id").replace('weight', '');
+        if (ele.value <= 0 || ele.value == "") {//no item or wrong format, remove cost and descriptions if existed
+            document.getElementById('extra' + item).innerHTML = "";
+            document.getElementById('totalCost' + item).value = "";
+        } else {//enough details, combine details and send to back-end for querying
+            var parcelDetails = {
+                ShopUrl: document.getElementById('shopUrl').value,
+                Address1: document.getElementById('tbxDeliveryAddress').value,
+                Suburb: document.getElementById('tbxDeliveryCity').value,
+                Postcode: document.getElementById('tbxDeliveryPostcode').value,
+                Region: document.getElementById('tbxRegion').value,
+                Weight: document.getElementById('weight' + item).value,
+                Type: document.getElementById('packaging' + item).value
+            };
+            //ajax element to query
+            $.ajax({
+                type: "POST",
+                url: "/Home/LabelQuery",
+                data: JSON.stringify(parcelDetails),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {//on success
+                    if (data.Error == "No Service Available") {//No service given, show warning, remove cost if existed
+                        document.getElementById('extra' + item).innerHTML = data.Error;
+                        document.getElementById('totalCost' + item).value = "";
+                    } else {//serice available, update cost and description accordingly
+                        var result = (parseFloat(data.TotalCost) * parseFloat(document.getElementById("items" + item).value)).toFixed(2);
+                        document.getElementById('totalCost' + item).value = result;
+                        var extra = data.BaseLabelColour + "<br>"
+                        if (data.Rural) { extra = extra + "Rural <br>" }
+                        if (data.Excess > 0) { extra = extra + data.Excess + " Excess" }
+                        document.getElementById('extra' + item).innerHTML = extra;
+                    }
+                },
+                error: function () {//error, warning and remove costs
+                    document.getElementById('extra' + item).innerHTML = "No service available"
+                    document.getElementById('totalCost' + item).value = "";
+                }
+            });
+        }
+    }
+    //Add ONE line for new package
+    function addPackage() {
+        //required variables
+        var itemTable = document.getElementById("tblItems");
+        var i = itemTable.getElementsByTagName("tr").length;
+
+        if (i >= 2) {//Not the first package
+            var check = true;
+            for (var k = 0; k < (i - 1); k++){
+                //check all totalCost box if packages hasbeen all used
+                if (document.getElementById('totalCost' + k).value == "") check = false;
+            }
+            if (!check) {//if not, show warning
+                document.getElementById('warning3').innerText = "There are unused package(s)";
+                document.getElementById('warning3').style.display = "block";
+            } else {//else add another row
+                document.getElementById('warning3').style.display = "none";
+                addRow(itemTable,i);
+            }
+        } else {//First package, just add new one
+            document.getElementById('warning3').style.display = "none";
+            addRow(itemTable,i);
+        }
+    }
+    //add a package details row
+    function addRow(table, rowNumber) {
+        //new row object
+        var row = table.insertRow(rowNumber);
+        //css class for row
+        row.classList.add('consignmentItems');
+        //id array for cells
+        var cells = ["reference", "packaging", "items", "weight", "cubic", "length", "width", "height", "totalCost", "extra"];
+        //calling creating cell method
+        for (var j = 0; j < cells.length; j++) {
+            var newCell = row.insertCell(-1);
+            createCell(newCell, cells[j], rowNumber - 1);
+        }
+    }
+    //Add one cell to new line base on type passed on
+    function createCell(cell,type,k){
+        if (type == "packaging") {
+            //Packaging
+            cell.classList.add('col-xs-2');
+            cell.style.padding = "1px";
+            var select = document.createElement('select');
+            select.setAttribute('id', 'packaging' + k);
+            select.classList.add('form-control');
+            select.onchange = function () {//when packaging type changed, reset package details
+                document.getElementById("items" + k).value = 1;
+                document.getElementById("weight" + k).value = "";
+                document.getElementById("totalCost" + k).value = "";
+                document.getElementById("extra" + k).innerHTML = "";
+            }
+            //text array to create options for select box
+            var options = ["Parcel", "Satchel DL", "Satchel A5", "Satchel A4", "Satchel A3", "Satchel A2"];
+            for (var l = 0; l < options.length; l++) {
+                var option = document.createElement("option");
+                option.text = options[l];
+                switch (options[l]) {
+                    case "Parcel":
+                        option.value = "Parcel";
+                        break;
+                    case "Satchel DL":
+                        option.value = "SAT-NAT-E11";
+                        break;
+                    case "Satchel A5":
+                        option.value = "SAT-NAT-A5";
+                        break;
+                    case "Satchel A4":
+                        option.value = "SAT-NAT-A4";
+                        break;
+                    case "Satchel A3":
+                        option.value = "SAT-NAT-A3";
+                        break;
+                    case "Satchel A2":
+                        option.value = "SAT-NAT-A2";
+                        break;
+                }
+                select.add(option);
+            }
+            cell.appendChild(select);
+            
+        } else if (type == "reference") {
+            //Reference
+            cell.classList.add('col-xs-2');
+            cell.style.padding = "1px";
+            var input = document.createElement('input');
+            input.classList.add('form-control');
+            input.setAttribute('id', 'reference' + k);
+            input.setAttribute('type', 'text');
+            cell.appendChild(input);
+
+        } else if (type == "extra") {
+            //Extra
+            cell.classList.add('col-xs-1');
+            cell.style.padding = "1px";
+            var label = document.createElement('label');
+            label.setAttribute('id', 'extra' + k);
+            label.setAttribute('type', 'text');
+            cell.appendChild(label);
+        } else {
+            //All others are input
+            cell.classList.add('col-xs-1');
+            cell.style.padding = "1px";
+            var input = document.createElement('input');
+            input.classList.add('form-control');
+            input.setAttribute('id', type + k);
+            input.setAttribute('type', 'text');
+            if (type == "items") {//if Items (number of item for same packaging type)
+                input.value = "1";//default value
+                input.onchange = function () {//When changed, update cost and label descriptions accordingly
+                    if (document.getElementById("items" + k).value <= 0 || document.getElementById("items" + k).value =="") {
+                        document.getElementById("totalCost" + item).value = "";
+                        document.getElementById("extra" + item).innerHTML = "";
+                    } else if (document.getElementById("weight" + k).value > 0 && document.getElementById("weight" + k).value != "") {
+                        serviceQuery(document.getElementById("weight" + k));
+                    }
+                }
+            }
+            if (type == "weight") {//if Weight update cost and label discription
+                input.onchange = function () {
+                    if (document.getElementById("weight" + k).value <= 0 || document.getElementById("weight" + k).value == "") {
+                        document.getElementById('extra' + k).innerHTML = "";
+                        document.getElementById('totalCost' + k).value = "";
+                    } else {
+                        if (!document.getElementById('tbxCustomerName').disabled) { disableAddress();}
+                        serviceQuery(document.getElementById("weight" + k));
+                    }
+                }
+            }
+            cell.appendChild(input);
+        }
+        
+    }
+    //enable address fields
+    function enableAddress() {
+        document.getElementById('tbxCustomerName').disabled = false;
+        document.getElementById('tbxDeliveryAddress').disabled = false;
+        document.getElementById('tbxDeliveryAddress2').disabled = false;
+        document.getElementById('tbxDeliveryCity').disabled = false;
+        document.getElementById('tbxDeliveryPostcode').disabled = false;
+        document.getElementById('tbxRegion').disabled = false;
+    }
+    //disable address fields
+    function disableAddress() {
+        document.getElementById('tbxCustomerName').disabled = true;
+        document.getElementById('tbxDeliveryAddress').disabled = true;
+        document.getElementById('tbxDeliveryAddress2').disabled = true;
+        document.getElementById('tbxDeliveryCity').disabled = true;
+        document.getElementById('tbxDeliveryPostcode').disabled = true;
+        document.getElementById('tbxRegion').disabled = true;
+    }
+    //Reset to only ONE parcel.
+    function reset() {
+        enableAddress();
+        $('#tblItems tr').slice(1).remove();
+        addPackage();
+    }
+    //Check for required fields before query labels
+    function addressCheck() {
+        var result = true;
+        if (document.getElementById('tbxCustomerName').value == "" || document.getElementById('tbxDeliveryAddress').value == "" || document.getElementById('tbxDeliveryCity').value == "" || document.getElementById('tbxDeliveryPostcode').value == "") {
+            result = false
+        }
+        return result;
+    }
+    //Collect details and request labels from Fastway server
+    function printLabels() {
+        //delivery details NOTE: need to add more details in if neededs, belows are required to be able to proceed.
+        var deliveryDetails = {
+            Address1: document.getElementById('tbxDeliveryAddress').value,
+            Suburb: document.getElementById('tbxDeliveryCity').value,
+            Postcode: document.getElementById('tbxDeliveryPostcode').value,
+            Name: document.getElementById('tbxCustomerName').value
+        }
+        //get required variables
+        var itemTable = document.getElementById('tblItems');
+        var itemNumber = itemTable.getElementsByTagName("tr").length - 1;
+        //forming packaging details json
+        var packagingDetails = '[';
+
+        for (var i = 0; i < itemNumber; i++){
+            var extraString = document.getElementById("extra" + i).innerHTML;
+            packagingDetails += '{'
+                + '"Reference":"' + document.getElementById("reference" + i).value + '",'
+                + '"Items":"' + document.getElementById("items" + i).value + '",'
+                + '"Weight":"' + document.getElementById("weight" + i).value + '",'
+                + '"BaseLabel":"' + getService(extraString) + '"'
+                + '}';   
+            if (i != itemNumber - 1) { packagingDetails += ',';}
+        }
+
+        packagingDetails += ']';
+        //forming data to send to back-end
+        var printDetails = {
+            ShopUrl: document.getElementById('shopUrl').value,
+            DeliveryDetails: JSON.stringify(deliveryDetails),
+            PackagingDetails: packagingDetails
+        };
+        //ajax element to get label printed
+        $.ajax({
+            type: "POST",
+            url: "/Home/LabelPrinting",
+            data: JSON.stringify(printDetails),
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                //on receiving data, open pdf file
+                window.open("data:application/pdf;base64, " + data.PdfBase64Stream, '', "height=600,width=800");
+                //call controller OrdersFulfillment to fulfill order(s)
+                window.location = "OrdersFulfillment?shopUrl=" + document.getElementById("shopUrl").value + "&orderIds=" + document.getElementById("orderDetails").value + "&labelNumbers=" + data.Labels;
+            },
+            error: function () {
+                //NOTE: handling errors if required
+                alert("There was an error!");
+            }
+        });
+
+    }
+    //get Service name e.g. ORANGE/RED etc
+    function getService(str) {
+        let spacePosition = str.indexOf('<');
+        if (spacePosition === -1)
+            return str;
+        else
+            return str.substr(0, spacePosition);
+    }
+
+</script>
