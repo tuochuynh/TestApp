@@ -39,7 +39,7 @@ namespace FastwayShopifyAppV3.Engine
         public void InsertNewShop(string shop, string token)
         {
             using (SqlConnection newCon = new SqlConnection(ShopifyAppEngine.ConnectionString))
-            using (SqlCommand cmd = new SqlCommand("INSERT INTO StoreDB (StoreId, StoreUrl, ShopifyToken, AppInstalled) VALUES (NEWID(),'"  + shop + "', '" + token + "', '" + 1 + "')", newCon))
+            using (SqlCommand cmd = new SqlCommand("INSERT INTO tuochuynh.StoreDB (StoreId, StoreUrl, ShopifyToken, AppInstalled) VALUES (NEWID(),'"  + shop + "', '" + token + "', '" + 1 + "')", newCon))
             {
                 newCon.Open();
                 cmd.ExecuteNonQuery();
@@ -55,7 +55,7 @@ namespace FastwayShopifyAppV3.Engine
         public void UpdateStringValues(string shop, string column, string value)
         {
             using (SqlConnection newCon = new SqlConnection(ShopifyAppEngine.ConnectionString))
-            using (SqlCommand cmd = new SqlCommand("UPDATE StoreDB SET " + column + " = '" + value + "' WHERE StoreUrl ='" + shop + "'", newCon))
+            using (SqlCommand cmd = new SqlCommand("UPDATE tuochuynh.StoreDB SET " + column + " = '" + value + "' WHERE StoreUrl ='" + shop + "'", newCon))
             {
                 newCon.Open();
                 cmd.ExecuteNonQuery();
@@ -71,7 +71,7 @@ namespace FastwayShopifyAppV3.Engine
         public void UpdateIntergerValues(string shop, string column, int value)
         {
             using (SqlConnection newCon = new SqlConnection(ShopifyAppEngine.ConnectionString))
-            using (SqlCommand cmd = new SqlCommand("UPDATE StoreDB SET " + column + " = '" + value + "' WHERE StoreUrl ='" + shop + "'", newCon))
+            using (SqlCommand cmd = new SqlCommand("UPDATE tuochuynh.StoreDB SET " + column + " = '" + value + "' WHERE StoreUrl ='" + shop + "'", newCon))
             {
                 newCon.Open();
                 cmd.ExecuteNonQuery();
@@ -88,7 +88,7 @@ namespace FastwayShopifyAppV3.Engine
             List<StoreRecord> thisShop = new List<StoreRecord>();
 
             using (SqlConnection newCon = new SqlConnection(ShopifyAppEngine.ConnectionString))
-            using (SqlCommand cmd = new SqlCommand("SELECT * FROM StoreDB WHERE StoreUrl ='" + shop + "'", newCon))
+            using (SqlCommand cmd = new SqlCommand("SELECT * FROM tuochuynh.StoreDB WHERE StoreUrl ='" + shop + "'", newCon))
             {
                 newCon.Open();
                 using (SqlDataReader result = cmd.ExecuteReader())
@@ -102,7 +102,7 @@ namespace FastwayShopifyAppV3.Engine
                             i.StoreUrl = result[result.GetOrdinal("StoreUrl")] as string;
                             i.StoreName = result[result.GetOrdinal("StoreName")] as string;
                             i.StoreAddress1 = result[result.GetOrdinal("StoreAddress1")] as string;
-                            i.StoreAddress2 = result[result.GetOrdinal("StoreAddress2")] as string;
+                            //i.StoreAddress2 = result[result.GetOrdinal("StoreAddress2")] as string;
                             i.Suburb = result[result.GetOrdinal("Suburb")] as string;
                             i.Postcode = result[result.GetOrdinal("Postcode")] as string;
                             i.FastwayApiKey = result[result.GetOrdinal("FastwayApiKey")] as string;
@@ -135,7 +135,7 @@ namespace FastwayShopifyAppV3.Engine
         {
             string result="";
             using (SqlConnection newCon = new SqlConnection(ShopifyAppEngine.ConnectionString))
-            using (SqlCommand cmd = new SqlCommand("SELECT * FROM StoreDB WHERE StoreUrl ='" + shop + "'", newCon))
+            using (SqlCommand cmd = new SqlCommand("SELECT * FROM tuochuynh.StoreDB WHERE StoreUrl ='" + shop + "'", newCon))
             {
                 newCon.Open();
                 using (SqlDataReader shopRecord = cmd.ExecuteReader())
@@ -162,7 +162,7 @@ namespace FastwayShopifyAppV3.Engine
         {
             int result = -1;
             using (SqlConnection newCon = new SqlConnection(ShopifyAppEngine.ConnectionString))
-            using (SqlCommand cmd = new SqlCommand("SELECT * FROM StoreDB WHERE StoreUrl ='" + shop + "'", newCon))
+            using (SqlCommand cmd = new SqlCommand("SELECT * FROM tuochuynh.StoreDB WHERE StoreUrl ='" + shop + "'", newCon))
             {
                 newCon.Open();
                 using (SqlDataReader shopRecord = cmd.ExecuteReader())
@@ -187,7 +187,7 @@ namespace FastwayShopifyAppV3.Engine
         public bool ExistingShop(string shop)
         {
             using (SqlConnection newCon = new SqlConnection(ShopifyAppEngine.ConnectionString))
-            using (SqlCommand cmd = new SqlCommand("SELECT * FROM StoreDB WHERE StoreUrl ='" + shop + "'", newCon))
+            using (SqlCommand cmd = new SqlCommand("SELECT * FROM tuochuynh.StoreDB WHERE StoreUrl ='" + shop + "'", newCon))
             {
                 newCon.Open();
                 using (SqlDataReader result = cmd.ExecuteReader())
@@ -213,7 +213,7 @@ namespace FastwayShopifyAppV3.Engine
         public string StoreUrl { get; set; }
         public string StoreName { get; set; }
         public string StoreAddress1 { get; set; }
-        public string StoreAddress2 { get; set; }
+        //public string StoreAddress2 { get; set; }
         public string Suburb { get; set; }
         public string Postcode { get; set; }
         public string ShopifyToken { get; set; }

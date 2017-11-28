@@ -28,10 +28,10 @@
                             <label>Address line 1:<span style="color:red;font-weight:bold">*</span></label>
                             <input id="tbxDeliveryAddress" class="form-control" placeholder="Address line 1" type="text" style="" />
                         </div>
-                        <div class="address">
+                        @*<div class="address">
                             <label>Address line 2:</label>
                             <input id="tbxDeliveryAddress2" class="form-control" placeholder="Address line 1" type="text" style="" />
-                        </div>
+                        </div>*@
                         <div class="row">
                             <div class="address col-md-6">
                                 <label>Suburb:<span style="color:red;font-weight:bold">*</span></label>
@@ -139,7 +139,7 @@
         var addressDetails = JSON.parse(addressString);
         document.getElementById('tbxCustomerName').value = addressDetails.Name;
         document.getElementById('tbxDeliveryAddress').value = addressDetails.Address1;
-        document.getElementById('tbxDeliveryAddress2').value = addressDetails.Address2 || "";
+        //document.getElementById('tbxDeliveryAddress2').value = addressDetails.Address2 || "";
         document.getElementById('tbxDeliveryCity').value = addressDetails.City;
         document.getElementById('tbxDeliveryPostcode').value = addressDetails.Zip;
         document.getElementById('tbxRegion').value = addressDetails.Province;
@@ -332,8 +332,17 @@
                         document.getElementById('extra' + k).innerHTML = "";
                         document.getElementById('totalCost' + k).value = "";
                     } else {
-                        if (!document.getElementById('tbxCustomerName').disabled) { disableAddress();}
-                        serviceQuery(document.getElementById("weight" + k));
+                        if (addressCheck()) {
+                            document.getElementById('warning1').style.display = "none";
+                            document.getElementById('warning2').style.display = "none";
+                            if (!document.getElementById('tbxCustomerName').disabled) { disableAddress(); }
+                            serviceQuery(document.getElementById("weight" + k));
+                        } else {
+                            document.getElementById('warning1').style.display = "none";
+                            document.getElementById('warning2').style.display = "block";
+                            document.getElementById('warning2').innerText = "Please check required address details";
+                            document.getElementById("weight" + k).value = "";
+                        }
                     }
                 }
             }
@@ -345,7 +354,7 @@
     function enableAddress() {
         document.getElementById('tbxCustomerName').disabled = false;
         document.getElementById('tbxDeliveryAddress').disabled = false;
-        document.getElementById('tbxDeliveryAddress2').disabled = false;
+        //document.getElementById('tbxDeliveryAddress2').disabled = false;
         document.getElementById('tbxDeliveryCity').disabled = false;
         document.getElementById('tbxDeliveryPostcode').disabled = false;
         document.getElementById('tbxRegion').disabled = false;
@@ -354,7 +363,7 @@
     function disableAddress() {
         document.getElementById('tbxCustomerName').disabled = true;
         document.getElementById('tbxDeliveryAddress').disabled = true;
-        document.getElementById('tbxDeliveryAddress2').disabled = true;
+        //document.getElementById('tbxDeliveryAddress2').disabled = true;
         document.getElementById('tbxDeliveryCity').disabled = true;
         document.getElementById('tbxDeliveryPostcode').disabled = true;
         document.getElementById('tbxRegion').disabled = true;
