@@ -86,13 +86,23 @@ namespace FastwayShopifyAppV3.Controllers
                 Order k = await api.GetOrder(shop, token, orderIds[i]);
                 if (k.ShippingAddress != null)
                 {//if shipping address exist, add to list of delivery details
-                    deliveryAddress.Add(k.ShippingAddress);
+                    bool check = true;
+                    if (deliveryAddress.Count > 0)
+                    {
+                        for (var l = 0; l < orderDetails.Count; l++)
+                        {
+                            if (deliveryAddress[l].Name == k.ShippingAddress.Name)
+                            {
+                                check = false;
+                            }
+                        }
+                    }
+                    if (check == true)
+                    {
+                        deliveryAddress.Add(k.ShippingAddress);
+                    }
                 }
-                if (!orderDetails.Contains(k))
-                {//if not already have this address
-                    orderDetails.Add(k);//add order details into list of order details
-                }
-                
+                orderDetails.Add(k);//add order details into list of order details
             }
 
             //jsonserialiser object to form json from list
