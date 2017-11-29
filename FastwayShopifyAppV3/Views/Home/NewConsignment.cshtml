@@ -114,7 +114,41 @@
                         Reset
                     </a>
                 </div>
-                <div class="col-xs-6"></div>
+                <div class="col-xs-6">
+                    <div class="pull-right" style="width:120px">
+                        <table style="text-align:right;vertical-align:top" width="100%" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <h6>Ex GST:</h6>
+                                    </td>
+                                    <td>
+                                        $
+                                        <label id="spanExGST">0.00</label>
+                                    </td>
+                                </tr>
+                                <tr style="border-top:1px solid black">
+                                    <td>
+                                        <h6>GST:</h6>
+                                    </td>
+                                    <td>
+                                        $
+                                        <label id="spanGST">0.00</label>
+                                    </td>
+                                </tr>
+                                <tr style="height: 20px">
+                                    <td style="border-top: 1px solid black; border-bottom: 1px double black">
+                                        <h4>Total:</h4>
+                                    </td>
+                                    <td style="border-top: 1px solid black; border-bottom: 1px double black">
+                                        $
+                                            <label id="spanTotal">0.00</label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -160,7 +194,8 @@
             document.getElementById("totalCost" + item).value = "";
             document.getElementById("extra" + item).innerHTML = "";
         } else if (document.getElementById("weight" + item).value > 0 && document.getElementById("weight" + item).value != "") {
-            serviceQuery(document.getElementById("weight"+item));
+            serviceQuery(document.getElementById("weight" + item));
+            updateTotalCost();
         }
     }
     //query for available service
@@ -191,6 +226,7 @@
                     if (data.Error == "No Service Available") {//No service given, show warning, remove cost if existed
                         document.getElementById('extra' + item).innerHTML = data.Error;
                         document.getElementById('totalCost' + item).value = "";
+                        updateTotalCost();
                     } else {//serice available, update cost and description accordingly
                         var result = (parseFloat(data.TotalCost) * parseFloat(document.getElementById("items" + item).value)).toFixed(2);
                         document.getElementById('totalCost' + item).value = result;
@@ -198,14 +234,17 @@
                         if (data.Rural) { extra = extra + "Rural <br>" }
                         if (data.Excess > 0) { extra = extra + data.Excess + " Excess" }
                         document.getElementById('extra' + item).innerHTML = extra;
+                        updateTotalCost();
                     }
                 },
                 error: function () {//error, warning and remove costs
                     document.getElementById('extra' + item).innerHTML = "No service available"
                     document.getElementById('totalCost' + item).value = "";
+                    updateTotalCost();
                 }
             });
         }
+        
     }
     //Add ONE line for new package
     function addPackage() {
@@ -259,6 +298,7 @@
                 document.getElementById("weight" + k).value = "";
                 document.getElementById("totalCost" + k).value = "";
                 document.getElementById("extra" + k).innerHTML = "";
+                updateTotalCost();
             }
             //text array to create options for select box
             var options = ["Parcel", "Satchel DL", "Satchel A5", "Satchel A4", "Satchel A3", "Satchel A2"];
@@ -321,16 +361,17 @@
                     if (document.getElementById("items" + k).value <= 0 || document.getElementById("items" + k).value =="") {
                         document.getElementById("totalCost" + item).value = "";
                         document.getElementById("extra" + item).innerHTML = "";
+                        updateTotalCost();
                     } else if (document.getElementById("weight" + k).value > 0 && document.getElementById("weight" + k).value != "") {
                         serviceQuery(document.getElementById("weight" + k));
                     }
                 }
-            }
-            if (type == "weight") {//if Weight update cost and label discription
+            } else if (type == "weight") {//if Weight update cost and label discription
                 input.onchange = function () {
                     if (document.getElementById("weight" + k).value <= 0 || document.getElementById("weight" + k).value == "") {
                         document.getElementById('extra' + k).innerHTML = "";
                         document.getElementById('totalCost' + k).value = "";
+                        updateTotalCost();
                     } else {
                         if (addressCheck()) {
                             document.getElementById('warning1').style.display = "none";
@@ -345,7 +386,10 @@
                         }
                     }
                 }
+            } else {
+                input.disabled = true;
             }
+            
             cell.appendChild(input);
         }
         
@@ -442,6 +486,23 @@
             return str;
         else
             return str.substr(0, spacePosition);
+    }
+    //function to update total cost
+    function updateTotalCost() {
+        var itemTable = document.getElementById("tblItems");
+        var i = itemTable.getElementsByTagName("tr").length;
+            var total = 0;
+            for (var j = 0; j < (i - 1); j++) {
+                if (document.getElementById('totalCost' + j).value != "") {
+                    var float = parseFloat(document.getElementById('totalCost' + j).value);
+                    total += float;
+                }
+            }
+            var GST = total * 15 / 100;
+            var inGST = total + GST;
+            document.getElementById('spanExGST').innerHTML = total.toFixed(2);
+            document.getElementById('spanGST').innerHTML = GST.toFixed(2);
+            document.getElementById('spanTotal').innerHTML = inGST.toFixed(2);
     }
 
 </script>
