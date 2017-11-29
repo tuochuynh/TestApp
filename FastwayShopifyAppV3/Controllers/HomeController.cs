@@ -88,7 +88,11 @@ namespace FastwayShopifyAppV3.Controllers
                 {//if shipping address exist, add to list of delivery details
                     deliveryAddress.Add(k.ShippingAddress);
                 }
-                orderDetails.Add(k);//add order details into list of order details
+                if (!orderDetails.Contains(k))
+                {//if not already have this address
+                    orderDetails.Add(k);//add order details into list of order details
+                }
+                
             }
 
             //jsonserialiser object to form json from list
@@ -102,7 +106,7 @@ namespace FastwayShopifyAppV3.Controllers
             {//No delivery address found
                 address = "NoAddress";
             }
-            else if (deliveryAddress.Count()>1&&deliveryAddress.Distinct<Address>().Count() == deliveryAddress.Count())
+            else if (deliveryAddress.Count()>1)
             {//More than one addresses found
                 address = "MoreThanOne";
             } else
