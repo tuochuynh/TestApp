@@ -470,7 +470,7 @@
                 //on receiving data, open pdf file
                 window.open("data:application/pdf;base64, " + data.PdfBase64Stream, '', "height=600,width=800");
                 //Test print type image
-                //window.open("data:image/jpg;base64, " + data.PdfBase64Stream, '', "height=600,width=800");
+                //window.open("data:image/jpg;base64, " + data.JpegString, '', "height=600,width=400");
 
                 //call controller OrdersFulfillment to fulfill order(s)
                 window.location = "OrdersFulfillment?shopUrl=" + document.getElementById("shopUrl").value + "&orderIds=" + document.getElementById("orderDetails").value + "&labelNumbers=" + data.Labels;

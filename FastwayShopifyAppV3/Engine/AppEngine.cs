@@ -551,6 +551,36 @@ namespace FastwayShopifyAppV3.Engine
             return content;
         }
 
+        public string PrintLabelNumbersJpeg(List<string> labelNumbers, string apiKey)
+        {
+            //RestClient to make API calls
+            var client = new RestClient();
+            client.BaseUrl = new Uri("http://nz.api.fastway.org/v2/");
+            //New restclient request
+            var request = new RestRequest();
+            //populate data required for API calls
+            request.Resource = "dynamiclabels/generate-label-for-labelnumber";
+
+            for (int i = 0; i < labelNumbers.Count; i++)
+            {
+                request.AddParameter(string.Concat("LabelNumbers[", i, "]"), labelNumbers[i]);
+            }
+
+            request.AddParameter("api_key", apiKey);
+
+            // test print type image
+            request.AddParameter("Type", "Image");
+
+            //Execute API request, await for response
+            IRestResponse response = client.Execute(request);
+            //Convert response to rawBytes format and return
+            
+            JObject o = JObject.Parse(response.Content);
+            JArray a = JArray.Parse(o["result"]["jpegs"].ToString());
+
+            return a[0]["base64Utf8Bytes"].ToString();
+        }
+
         /// <summary>
         /// Method to query for pdfstreams on a label number with adjusted data
         /// NOTE: NOT BEING USED
