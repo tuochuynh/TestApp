@@ -540,12 +540,17 @@ namespace FastwayShopifyAppV3.Engine
             }
 
             request.AddParameter("api_key", apiKey);
+
+            // test print type image
+            //request.AddParameter("Type", "Image");
+
             //Execute API request, await for response
             IRestResponse response = client.Execute(request);
             //Convert response to rawBytes format and return
             byte[] content = response.RawBytes;
             return content;
         }
+
         /// <summary>
         /// Method to query for pdfstreams on a label number with adjusted data
         /// NOTE: NOT BEING USED

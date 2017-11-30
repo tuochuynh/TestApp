@@ -39,7 +39,7 @@
                             </div>
                             <div class="address col-md-6">
                                 <label>Postcode:<span style="color:red;font-weight:bold">*</span></label>
-                                <input id="tbxDeliveryPostcode" class="form-control" placeholder="Postcode" type="text" style="" />
+                                <input id="tbxDeliveryPostcode" class="form-control" placeholder="Postcode" type="text" maxlength="4" style="" />
                             </div>
                         </div>
                         <div class="address">
@@ -469,6 +469,9 @@
             success: function (data) {
                 //on receiving data, open pdf file
                 window.open("data:application/pdf;base64, " + data.PdfBase64Stream, '', "height=600,width=800");
+                //Test print type image
+                //window.open("data:image/jpg;base64, " + data.PdfBase64Stream, '', "height=600,width=800");
+
                 //call controller OrdersFulfillment to fulfill order(s)
                 window.location = "OrdersFulfillment?shopUrl=" + document.getElementById("shopUrl").value + "&orderIds=" + document.getElementById("orderDetails").value + "&labelNumbers=" + data.Labels;
             },

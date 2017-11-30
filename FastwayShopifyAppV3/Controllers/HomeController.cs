@@ -267,8 +267,9 @@ namespace FastwayShopifyAppV3.Controllers
 
             //new fastway api to printlabel
             FastwayAPI printLabel = new FastwayAPI();
+
             //query fastway API to retrieve PDF stream
-            byte[] pdfStream = printLabel.PrintLabelNumbers(labelNumbers,label.apiKey);
+            byte[] pdfStream = printLabel.PrintLabelNumbers(labelNumbers, label.apiKey);
             //converting to base64String to display on browser
             string base64EncodedPDF = Convert.ToBase64String(pdfStream);
 
@@ -276,8 +277,10 @@ namespace FastwayShopifyAppV3.Controllers
             {
                 return Json(new
                 {//returning results to front-end
-                    Labels = String.Join(",",labelNumbers),
+                    Labels = String.Join(",", labelNumbers),
                     PdfBase64Stream = base64EncodedPDF
+                    //Test print type image
+
                 });
             } catch (Exception e)
             {//NOTE: manage exception if required
