@@ -572,50 +572,58 @@ namespace FastwayShopifyAppV3.Engine
             request.Resource = "dynamiclabels/generate-label-for-labelnumber";
 
             for (int i = 0; i < labelNumbers.Count; i++)
-            {
+            {//add labels numbers
                 request.AddParameter(string.Concat("LabelNumbers[", i, "]"), labelNumbers[i]);
             }
-
+            //Fastway api key
             request.AddParameter("api_key", apiKey);
 
-            // test print type image
+            // Get label using image type
             request.AddParameter("Type", "Image");
 
             //Execute API request, await for response
             IRestResponse response = client.Execute(request);
-            //Convert response to rawBytes format and return
             
+            //Parsing reresponse
             JObject o = JObject.Parse(response.Content);
-            JArray a = JArray.Parse(o["result"]["jpegs"].ToString());
-
-            List<string> labels = new List<string>();
-
-            PdfDocument doc = new PdfDocument();
-
-            for (int j = 0; j < a.Count; j++)
+            //Parsing result portion of response to get jpeg image strings
+            try
             {
-                byte[] jpgByteArray = Convert.FromBase64String(a[j]["base64Utf8Bytes"].ToString());
-                
-                PdfPage page = doc.AddPage();
+                JArray a = JArray.Parse(o["result"]["jpegs"].ToString());
 
-                page.Width = XUnit.FromInch(4);
-                page.Height = XUnit.FromInch(6);
+                List<string> labels = new List<string>();
 
-                MemoryStream stream = new MemoryStream(jpgByteArray);
+                PdfDocument doc = new PdfDocument();
 
-                XImage image = XImage.FromStream(stream);
-                XGraphics gfx = XGraphics.FromPdfPage(page);
+                for (int j = 0; j < a.Count; j++)
+                {
+                    byte[] jpgByteArray = Convert.FromBase64String(a[j]["base64Utf8Bytes"].ToString());
 
-                gfx.DrawImage(image, 0, 0, 285, 435);
+                    PdfPage page = doc.AddPage();
+
+                    page.Width = XUnit.FromInch(4);
+                    page.Height = XUnit.FromInch(6);
+
+                    MemoryStream stream = new MemoryStream(jpgByteArray);
+
+                    XImage image = XImage.FromStream(stream);
+                    XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                    gfx.DrawImage(image, 0, 0, 285, 435);
+                }
+
+                MemoryStream pdfStream = new MemoryStream();
+                doc.Save(pdfStream, false);
+                byte[] pdfBytes = pdfStream.ToArray();
+
+                var pdfBase64Code = Convert.ToBase64String(pdfBytes);
+
+                return pdfBase64Code;
+            } catch (Exception e)
+            {
+                throw e;
             }
-
-            MemoryStream pdfStream = new MemoryStream();
-            doc.Save(pdfStream, false);
-            byte[] pdfBytes = pdfStream.ToArray();
-
-            var pdfBase64Code = Convert.ToBase64String(pdfBytes);
-
-            return pdfBase64Code;
+            
         }
 
         /// <summary>

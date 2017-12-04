@@ -268,11 +268,11 @@ namespace FastwayShopifyAppV3.Controllers
             //new fastway api to printlabel
             FastwayAPI printLabel = new FastwayAPI();
 
-            //query fastway API to retrieve PDF stream
+            //query fastway API to retrieve PDF stream NOTE:Obsoleted as done in API method
             //byte[] pdfStream = printLabel.PrintLabelNumbers(labelNumbers, label.apiKey);
 
             string pdfString = printLabel.PrintLabelNumbersPdf(labelNumbers, label.apiKey);
-            //converting to base64String to display on browser
+            //converting to base64String to display on browser NOTE Obsoleted as done in API method
             //string base64EncodedPDF = Convert.ToBase64String(pdfString);
 
 

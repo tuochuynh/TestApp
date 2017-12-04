@@ -11,6 +11,11 @@
             <h1 id="pageTitle" class="article-title">Preferences</h1>
             <h3 class="header">Welcome to the set up page for Shopify Fastway App!</h3>
             <p>Please configure the below settings accordingly</p>
+            <div class="panel panel-body">
+                <div class="panel-body" style="padding:3px">
+                    <label id="warning1" style="display:none;padding:1px;width:100px" class="label-warning">Test</label>
+                </div>
+            </div>
             <table style="width:100%">
                 <tbody>
                     <tr>
@@ -72,6 +77,8 @@
             document.getElementById("tbxStoreSuburb").value != shopDetails.Suburb ||
             document.getElementById("tbxStorePostcode").value != shopDetails.Postcode ||
             document.getElementById("tbxApiKey").value != shopDetails.FastwayApiKey) {
+
+            document.getElementById('warning1').style.display = "none";
             //if yes, preparing data to be updated
             var updatedDetails = {
                 ShopUrl: shopDetails.StoreUrl,
@@ -89,14 +96,18 @@
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {//on success
-                    alert("Update: " + data.Updated);
+                    //alert("Update: " + data.Updated);
+                    document.getElementById('warning1').innerText = "Details has been updated";
+                    document.getElementById('warning1').style.display = "block";
                 },
                 error: function () {//error
-                    alert("FAILED");
+                    document.getElementById('warning1').innerText = "There was an error updating your details, please try again";
+                    document.getElementById('warning1').style.display = "block";
                 }
             });
         } else {//if there is no changes
-            alert('No change made')
+            document.getElementById('warning1').innerText = "No change made";
+            document.getElementById('warning1').style.display = "block";
         }
 
     }
