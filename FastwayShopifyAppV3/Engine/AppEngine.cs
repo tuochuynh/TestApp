@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using RestSharp;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Primitives;
+using PdfSharp.Pdf;
+using PdfSharp.Drawing;
+using System.IO;
 
 namespace FastwayShopifyAppV3.Engine
 {
@@ -524,7 +527,7 @@ namespace FastwayShopifyAppV3.Engine
         /// <param name="labelNumbers">Fastway label numbers</param>
         /// <param name="apiKey">Fastway apiKey</param>
         /// <returns>byte content from API call response</returns>
-        public byte[] PrintLabelNumbers(List<string> labelNumbers,string apiKey)
+        public string PrintLabelNumbers(List<string> labelNumbers,string apiKey)
         {
             //RestClient to make API calls
             var client = new RestClient();
@@ -548,10 +551,17 @@ namespace FastwayShopifyAppV3.Engine
             IRestResponse response = client.Execute(request);
             //Convert response to rawBytes format and return
             byte[] content = response.RawBytes;
-            return content;
-        }
+            var pdfBase64Code = Convert.ToBase64String(content);
 
-        public string PrintLabelNumbersJpeg(List<string> labelNumbers, string apiKey)
+            return pdfBase64Code;
+        }
+        /// <summary>
+        /// Method to query for pdfstreams on label numbers //NOTE: Currently not active
+        /// </summary>
+        /// <param name="labelNumbers">Fastway label numbers</param>
+        /// <param name="apiKey">Fastway apiKey</param>
+        /// <returns>string content from API call response</returns>
+        public string PrintLabelNumbersPdf(List<string> labelNumbers, string apiKey)
         {
             //RestClient to make API calls
             var client = new RestClient();
@@ -578,7 +588,34 @@ namespace FastwayShopifyAppV3.Engine
             JObject o = JObject.Parse(response.Content);
             JArray a = JArray.Parse(o["result"]["jpegs"].ToString());
 
-            return a[0]["base64Utf8Bytes"].ToString();
+            List<string> labels = new List<string>();
+
+            PdfDocument doc = new PdfDocument();
+
+            for (int j = 0; j < a.Count; j++)
+            {
+                byte[] jpgByteArray = Convert.FromBase64String(a[j]["base64Utf8Bytes"].ToString());
+                
+                PdfPage page = doc.AddPage();
+
+                page.Width = XUnit.FromInch(4);
+                page.Height = XUnit.FromInch(6);
+
+                MemoryStream stream = new MemoryStream(jpgByteArray);
+
+                XImage image = XImage.FromStream(stream);
+                XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                gfx.DrawImage(image, 0, 0, 285, 435);
+            }
+
+            MemoryStream pdfStream = new MemoryStream();
+            doc.Save(pdfStream, false);
+            byte[] pdfBytes = pdfStream.ToArray();
+
+            var pdfBase64Code = Convert.ToBase64String(pdfBytes);
+
+            return pdfBase64Code;
         }
 
         /// <summary>

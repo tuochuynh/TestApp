@@ -116,7 +116,7 @@
                 </div>
                 <div class="col-xs-6">
                     <div class="pull-right" style="width:120px">
-                        <table style="text-align:right;vertical-align:top" width="100%" cellspacing="0">
+                        <table style="text-align:right;vertical-align:top" @*width="100%"*@ cellspacing="0">
                             <tbody>
                                 <tr>
                                     <td>
@@ -417,6 +417,9 @@
         enableAddress();
         $('#tblItems tr').slice(1).remove();
         addPackage();
+        document.getElementById('spanExGST').innerHTML = "0.00";
+        document.getElementById('spanGST').innerHTML = "0.00";
+        document.getElementById('spanTotal').innerHTML = "0.00";
     }
     //Check for required fields before query labels
     function addressCheck() {

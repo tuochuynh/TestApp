@@ -269,11 +269,11 @@ namespace FastwayShopifyAppV3.Controllers
             FastwayAPI printLabel = new FastwayAPI();
 
             //query fastway API to retrieve PDF stream
-            byte[] pdfStream = printLabel.PrintLabelNumbers(labelNumbers, label.apiKey);
+            //byte[] pdfStream = printLabel.PrintLabelNumbers(labelNumbers, label.apiKey);
 
-            //string jpegString = printLabel.PrintLabelNumbersJpeg(labelNumbers, label.apiKey);
+            string pdfString = printLabel.PrintLabelNumbersPdf(labelNumbers, label.apiKey);
             //converting to base64String to display on browser
-            string base64EncodedPDF = Convert.ToBase64String(pdfStream);
+            //string base64EncodedPDF = Convert.ToBase64String(pdfString);
 
 
             try
@@ -281,7 +281,7 @@ namespace FastwayShopifyAppV3.Controllers
                 return Json(new
                 {//returning results to front-end
                     Labels = String.Join(",", labelNumbers),
-                    PdfBase64Stream = base64EncodedPDF
+                    PdfBase64Stream = pdfString
                     //Test print type image
                     //JpegString = jpegString
                 });
