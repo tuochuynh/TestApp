@@ -3,17 +3,16 @@
     ViewBag.Title = "NewConsignment";
 }
 
-
-<div class="container">
+@*<div id="load"></div>*@
+<div id="mainContainer" class="container">
     <div class="row">
-        <div id="rightside" class="col-xs-12 col-sm-12 col-md-9" style="min-height:836px;">
-            <div id="load"></div>
+        <div id="rightside" class="col-xs-12 col-sm-12 col-md-10" style="min-height:836px;">
             <div id="pageTitle" class="article-header"><h1 style="color:#003184">New Consignment</h1></div>
-            <div class="panel panel-body">
+            <div class="panel panel-body" style="padding:0">
                 <div class="panel-body" style="padding:3px">
-                    <label id="warning1" style="display:none;padding:1px;width:300px" class="label-warning">Test</label>
-                    <label id="warning2" style="display:none;padding:1px;width:300px" class="label-warning">Test</label>
-                    <label id="warning3" style="display:none;padding:1px;width:300px" class="label-warning">Test</label>
+                    <label id="warning1" style="display:none;padding:1px;width:500px" class="label-warning">Test</label>
+                    <label id="warning2" style="display:none;padding:1px;width:500px" class="label-warning">Test</label>
+                    <label id="warning3" style="display:none;padding:1px;width:500px" class="label-warning">Test</label>
                 </div>
             </div>
             <div class="col-md-6" style="padding-left: 0">
@@ -208,13 +207,23 @@
             document.getElementById('extra' + item).innerHTML = "";
             document.getElementById('totalCost' + item).value = "";
         } else {//enough details, combine details and send to back-end for querying
+            //checking weight vs cubic weight
+            var weight = ele.value;
+            if (document.getElementById('cubic' + item).value != "") {
+                var cubicWeight = document.getElementById('cubic' + item).value * 200;
+                if (cubicWeight > weight) {
+                    weight = cubicWeight;
+                }
+            }
+            
+            //wrapping the details
             var parcelDetails = {
                 ShopUrl: document.getElementById('shopUrl').value,
                 Address1: document.getElementById('tbxDeliveryAddress').value,
                 Suburb: document.getElementById('tbxDeliveryCity').value,
                 Postcode: document.getElementById('tbxDeliveryPostcode').value,
                 Region: document.getElementById('tbxRegion').value,
-                Weight: document.getElementById('weight' + item).value,
+                Weight: weight,
                 Type: document.getElementById('packaging' + item).value
             };
             //ajax element to query
@@ -368,9 +377,11 @@
                         serviceQuery(document.getElementById("weight" + k));
                     }
                 }
-            } else if (type == "weight") {//if Weight update cost and label discription
+            } else if (type == "weight") {//if Weight changed update cost and label discription
+                input.setAttribute('type', 'number');
+                input.setAttribute('min', 0);
                 input.onchange = function () {
-                    if (document.getElementById("weight" + k).value <= 0 || document.getElementById("weight" + k).value == "") {
+                    if (document.getElementById("weight" + k).value == 0 || document.getElementById("weight" + k).value == "") {
                         document.getElementById('extra' + k).innerHTML = "";
                         document.getElementById('totalCost' + k).value = "";
                         updateTotalCost();
@@ -388,8 +399,27 @@
                         }
                     }
                 }
+            } else if (type == "cubic" || type == "totalCost"){
+                input.disabled = true;            
             } else {
-                input.disabled = true;
+                input.setAttribute('type', 'number');
+                input.setAttribute('min', 0);
+                input.value = 0;
+                input.onchange = function () {
+                    if (document.getElementById("length" + k).value > 0 && document.getElementById("width" + k).value > 0 && document.getElementById("height" + k).value > 0) {
+                        var le = document.getElementById('length' + k).value;
+                        var we = document.getElementById('width' + k).value;
+                        var he = document.getElementById('height' + k).value;
+                        var cubic = le * we * he / 1000000;
+                        document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                        if (document.getElementById("weight" + k).value != "" && document.getElementById("weight" + k).value > 0) {
+                            serviceQuery(document.getElementById("weight" + k));
+                        }
+                    } else {
+                        document.getElementById("cubic" + k).value = "";
+                        serviceQuery(document.getElementById("weight" + k));
+                    }
+                }
             }
             
             cell.appendChild(input);
@@ -510,18 +540,22 @@
             document.getElementById('spanGST').innerHTML = GST.toFixed(2);
             document.getElementById('spanTotal').innerHTML = inGST.toFixed(2);
     }
+    //function to update weight when cubic changed
+
+
+
     //loading icon before page loaded
-    document.onreadystatechange = function () {
-        var state = document.readyState
-        if (state == 'interactive') {
-            document.getElementById('rightside').style.visibility = "hidden";
-        } else if (state == 'complete') {
-            setTimeout(function () {
-                document.getElementById('interactive');
-                document.getElementById('load').style.visibility = "hidden";
-                document.getElementById('rightside').style.visibility = "visible";
-            }, 1000);
-        }
-    }
+    //document.onreadystatechange = function () {
+    //    var state = document.readyState
+    //    if (state == 'interactive') {
+    //        document.getElementById('mainContainer').style.visibility = "hidden";
+    //    } else if (state == 'complete') {
+    //        setTimeout(function () {
+    //            document.getElementById('interactive');
+    //            document.getElementById('load').style.visibility = "hidden";
+    //            document.getElementById('mainContainer').style.visibility = "visible";
+    //        }, 500);
+    //    }
+    //}
 
 </script>

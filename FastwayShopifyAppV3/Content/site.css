@@ -689,6 +689,17 @@
 input[type=text], input[type=select] {
     width: 100%;
 }
+/*No Spining arrows for input*/
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 
 .divTbName ul.dropdown-menu {
     max-height: 300px;
@@ -893,8 +904,8 @@ input[type=text], input[type=select] {
 #load {
     width: 100%;
     height: 100%;
-    position: fixed;
+    position: absolute;
     z-index: 999;
-    background: url("/Images/loading.gif") no-repeat center center rgba(0,0,0,0.25)
+    background: url("/Images/loading.gif") no-repeat 30% 40% rgba(0,0,0,0.25)
 }
 
