@@ -384,11 +384,16 @@ namespace FastwayShopifyAppV3.Controllers
             conn.UpdateStringValues(ShopUrl, "Suburb", Suburb);
             conn.UpdateStringValues(ShopUrl, "Postcode", Postcode);
 
+            //from store data forming json for front-end
+            StoreRecord details = conn.GetShopRecord(ShopUrl);
+            JavaScriptSerializer jsonSerialiser = new JavaScriptSerializer();
+            string storeDetails = jsonSerialiser.Serialize(details);
+
             try
             {
                 return Json(new
                 {//return status success
-                    Updated = "Success"
+                    Updated = storeDetails
                 });
             } catch (Exception e)
             {//error
