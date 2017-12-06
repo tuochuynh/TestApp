@@ -306,9 +306,16 @@
             select.classList.add('form-control');
             select.onchange = function () {//when packaging type changed, reset package details
                 document.getElementById("items" + k).value = 1;
-                document.getElementById("weight" + k).value = "";
-                document.getElementById("totalCost" + k).value = "";
-                document.getElementById("extra" + k).innerHTML = "";
+                if (document.getElementById('packaging' + k).value != "Parcel") {
+                    document.getElementById("weight" + k).value = 5;
+                    document.getElementById("totalCost" + k).value = "";
+                    document.getElementById("extra" + k).innerHTML = "";
+                    serviceQuery(document.getElementById("weight" + k));
+                } else {
+                    document.getElementById("weight" + k).value = "";
+                    document.getElementById("totalCost" + k).value = "";
+                    document.getElementById("extra" + k).innerHTML = "";
+                }
                 updateTotalCost();
             }
             //text array to create options for select box
@@ -402,17 +409,24 @@
             } else if (type == "cubic" || type == "totalCost"){
                 input.disabled = true;            
             } else {
+                //dimensions are positive numbers and smaller than 200
                 input.setAttribute('type', 'number');
                 input.setAttribute('min', 0);
+                input.setAttribute('max', 200);
+                //default falue = 0
                 input.value = 0;
+                //when changed
                 input.onchange = function () {
+                    //if at least one of the dimensions is equal to 0, do nothing. Otherwise calculate cubic size and update
                     if (document.getElementById("length" + k).value > 0 && document.getElementById("width" + k).value > 0 && document.getElementById("height" + k).value > 0) {
                         var le = document.getElementById('length' + k).value;
                         var we = document.getElementById('width' + k).value;
                         var he = document.getElementById('height' + k).value;
                         var cubic = le * we * he / 1000000;
                         document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                        //check if physical weight value is not null and > 0 
                         if (document.getElementById("weight" + k).value != "" && document.getElementById("weight" + k).value > 0) {
+                            //query for service
                             serviceQuery(document.getElementById("weight" + k));
                         }
                     } else {
