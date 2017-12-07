@@ -394,6 +394,7 @@ namespace FastwayShopifyAppV3.Engine
             public string labelNumber;
             public double weight;
             public int excess;
+            public string ruralNumber;
 
             public string toCompany;
             public string toAddress1;
@@ -410,6 +411,8 @@ namespace FastwayShopifyAppV3.Engine
             public string fromPostcode;
             public string fromPhone;
 
+            public string reference;
+            public string specialInstruction1;
 
             public string labelDate;
 
@@ -726,7 +729,6 @@ namespace FastwayShopifyAppV3.Engine
             
             return label;
         }
-
     }
     /// <summary>
     /// Extension class to manage list value from request.Headers

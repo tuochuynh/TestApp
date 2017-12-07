@@ -57,6 +57,7 @@ namespace FastwayShopifyAppV3.Controllers
             List<string> orderIds = new List<string>();//list of orderIds
             List<Order> orderDetails = new List<Order>();//list of order details
             List<Address> deliveryAddress = new List<Address>();//list of delivery details
+            List<string> emails = new List<string>();//list of emails addresses
             
             if(orders==null)//No order select (in case customer reach this page from outside of their admin page
             {
@@ -100,6 +101,7 @@ namespace FastwayShopifyAppV3.Controllers
                     if (check == true)
                     {
                         deliveryAddress.Add(k.ShippingAddress);
+                        emails.Add(k.Email);
                     }
                 }
                 orderDetails.Add(k);//add order details into list of order details
@@ -109,6 +111,7 @@ namespace FastwayShopifyAppV3.Controllers
             JavaScriptSerializer jsonSerialiser = new JavaScriptSerializer();
             //creating json about orders to pass back to View()
             string orderJson = jsonSerialiser.Serialize(orderDetails);
+            
             
             //creating json about delivery address to pass back to View()
             string address = "";
@@ -127,6 +130,7 @@ namespace FastwayShopifyAppV3.Controllers
             Response.Write("<input id='shopUrl' type='hidden' value='" + shop + "'>");//passing shopUrl to View() for further queries
             Response.Write("<input id='orderDetails' type='hidden' value='" + orders/*orderJson*/ + "'>");//passing orderIds to View() for further queries
             Response.Write("<input id='deliveryAddress' type='hidden' value='" + address + "'>");//passing address to View() for further queries
+            Response.Write("<input id='emailAddress' type='hidden' value='" + emails[0] + "'>");//passing email address
             return View();
 
         }
@@ -235,13 +239,16 @@ namespace FastwayShopifyAppV3.Controllers
             label.toPostcode = d["Postcode"].ToString();
             label.toCity = d["Suburb"].ToString();
             label.toCompany = d["Name"].ToString();
+
             //parse packaging details
             JArray p = JArray.Parse(PackagingDetails);
             //object to store labelNumbers
             List<string> labelNumbers = new List<string>();
+            //TEST label with details
+            //List<Labeldetails> labelDetails = new List<Labeldetails>();
             
             for (int i = 0; i < p.Count; i++)
-            {//loop through packaging details to query Fastway API and get label numbers
+            {//loop through packaging details to query Fastway API and get label numbers //TEST details
                 for (int j = 0; j < (int)p[i]["Items"]; j++)
                 {//repeat this steps for number of item on each parcel type
                     //package details
@@ -251,7 +258,13 @@ namespace FastwayShopifyAppV3.Controllers
                     FastwayAPI getLabel = new FastwayAPI();
                     //a string object to hold label numbers
                     string labelNumber = getLabel.LabelQuery(label);
-                    
+                    //TEST details, a LabelDetails oblect to hold labelDetails
+                    //Labeldetails details = getLabel.LabelsQueryWithDetails(label);
+
+
+                    //NOTE: reference
+                    //label.reference = p["Reference"].ToString();
+
                     if (labelNumber.Contains(','))
                     {//if rural label exist
                         List<string> labelNumbersList = labelNumber.Split(',').ToList();
@@ -259,23 +272,25 @@ namespace FastwayShopifyAppV3.Controllers
                         {//add multiple labels to result
                             labelNumbers.Add(st);
                         }
-                    } else {//only one label
+                    }
+                    else
+                    {//only one label
                         labelNumbers.Add(labelNumber);
                     }
+                    //TEST details
+                    //labelDetails.Add(details);
+                    //labelNumbers.Add(details.labelNumber);
                 }
             }
 
             //new fastway api to printlabel
             FastwayAPI printLabel = new FastwayAPI();
 
-            //query fastway API to retrieve PDF stream NOTE:Obsoleted as done in API method
-            //byte[] pdfStream = printLabel.PrintLabelNumbers(labelNumbers, label.apiKey);
-
             string pdfString = printLabel.PrintLabelNumbersPdf(labelNumbers, label.apiKey);
-            //converting to base64String to display on browser NOTE Obsoleted as done in API method
-            //string base64EncodedPDF = Convert.ToBase64String(pdfString);
+            //TEST details
+            //string pdfString = printLabel.PrintLabelWithDetails(labelDetails, label.apiKey);
 
-
+            
             try
             {
                 return Json(new
@@ -290,6 +305,7 @@ namespace FastwayShopifyAppV3.Controllers
                 throw e;
             }
         }
+
         /// <summary>
         /// Controller to fulfill orders as required.
         /// </summary>

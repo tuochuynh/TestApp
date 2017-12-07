@@ -69,7 +69,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label>Mobile:</label>
-                                <input id="tbPhone" class="form-control" type="text" />
+                                <input id="tbMobilePhone" class="form-control" type="text" />
                             </div>
                         </div>
                     </div>
@@ -163,7 +163,7 @@
     addPackage();
     //Check for address and populate if required
     var addressString = document.getElementById('deliveryAddress').value;
-
+    
     if (addressString == "NoAddress") {//Warning for no address
         document.getElementById('warning1').innerText = "No delivery address found, please check with customer and input accordingly";
         document.getElementById('warning1').style.display = "block";
@@ -172,12 +172,24 @@
         document.getElementById('warning1').style.display = "block";
     } else {//only one address found, populate address details
         var addressDetails = JSON.parse(addressString);
-        document.getElementById('tbxCustomerName').value = addressDetails.Name;
+        if (addressDetails.Company != "") {
+            document.getElementById('tbxCustomerName').value = addressDetails.Company;
+            document.getElementById('tbContactName').value = addressDetails.Name;
+        } else {
+            document.getElementById('tbxCustomerName').value = addressDetails.Name;
+        }
         document.getElementById('tbxDeliveryAddress').value = addressDetails.Address1;
-        //document.getElementById('tbxDeliveryAddress2').value = addressDetails.Address2 || "";
         document.getElementById('tbxDeliveryCity').value = addressDetails.City;
         document.getElementById('tbxDeliveryPostcode').value = addressDetails.Zip;
         document.getElementById('tbxRegion').value = addressDetails.Province;
+
+        if (addressDetails.Phone != "") {
+            document.getElementById('tbPhone').value = addressDetails.Phone;
+        }
+
+        document.getElementById('tbEmail').value = document.getElementById('emailAddress').value;
+        
+
     }
     //reset parcel details once type of parcel changed
     function resetDetails(ele) {
