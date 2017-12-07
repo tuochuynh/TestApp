@@ -490,11 +490,23 @@
     //Collect details and request labels from Fastway server
     function printLabels() {
         //delivery details NOTE: need to add more details in if neededs, belows are required to be able to proceed.
+        var phone = "";
+        if (document.getElementById('tbMobilePhone').value != "") {
+            phone = document.getElementById('tbMobilePhone').value;
+        } else {
+            phone = document.getElementById('tbPhone').value;
+        }
+        
+
         var deliveryDetails = {
             Address1: document.getElementById('tbxDeliveryAddress').value,
             Suburb: document.getElementById('tbxDeliveryCity').value,
             Postcode: document.getElementById('tbxDeliveryPostcode').value,
-            Name: document.getElementById('tbxCustomerName').value
+            Company: document.getElementById('tbxCustomerName').value,
+            ContactName: document.getElementById('tbContactName').value,
+            ContactPhone: phone,
+            ContactEmail: document.getElementById('tbEmail').value
+            
         }
         //get required variables
         var itemTable = document.getElementById('tblItems');

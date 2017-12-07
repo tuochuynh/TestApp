@@ -404,6 +404,7 @@ namespace FastwayShopifyAppV3.Engine
             public string toContactName;
             public string toContactPhone;
             public string toRfName;
+            public string toEmail;
 
             public string fromCompany;
             public string fromAddress1;
@@ -708,6 +709,19 @@ namespace FastwayShopifyAppV3.Engine
 
             request.AddParameter("WeightInKg", details.weight);
             request.AddParameter("CountryCode", "6");
+
+            if (details.toContactName != "")
+            {
+                request.AddParameter("DeliveryContactName", details.toContactName);
+            }
+            if (details.toContactPhone != "")
+            {
+                request.AddParameter("DeliveryContactPhone", details.toContactPhone);
+            }
+            if (details.toEmail != "")
+            {
+                request.AddParameter("DeliveryEmailAddress", details.toEmail);
+            }
 
             //NOTE: will turn to true in live
             request.AddParameter("RequiresPickup", "False");

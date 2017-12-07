@@ -238,7 +238,11 @@ namespace FastwayShopifyAppV3.Controllers
             label.toAddress1 = d["Address1"].ToString();
             label.toPostcode = d["Postcode"].ToString();
             label.toCity = d["Suburb"].ToString();
-            label.toCompany = d["Name"].ToString();
+            label.toCompany = d["Company"].ToString();
+
+            label.toContactName = d["ContactName"].ToString();
+            label.toContactPhone = d["ContactPhone"].ToString();
+            label.toEmail = d["ContactEmail"].ToString();
 
             //parse packaging details
             JArray p = JArray.Parse(PackagingDetails);
