@@ -172,7 +172,7 @@
         document.getElementById('warning1').style.display = "block";
     } else {//only one address found, populate address details
         var addressDetails = JSON.parse(addressString);
-        if (addressDetails.Company != "") {
+        if (addressDetails.Company != "" && addressDetails.Company != null) {
             document.getElementById('tbxCustomerName').value = addressDetails.Company;
             document.getElementById('tbContactName').value = addressDetails.Name;
         } else {
@@ -497,6 +497,7 @@
             phone = document.getElementById('tbPhone').value;
         }
         
+        
 
         var deliveryDetails = {
             Address1: document.getElementById('tbxDeliveryAddress').value,
@@ -505,7 +506,8 @@
             Company: document.getElementById('tbxCustomerName').value,
             ContactName: document.getElementById('tbContactName').value,
             ContactPhone: phone,
-            ContactEmail: document.getElementById('tbEmail').value
+            ContactEmail: document.getElementById('tbEmail').value,
+            SpecialInstruction1: document.getElementById('tbInstructions').value
             
         }
         //get required variables
@@ -535,14 +537,13 @@
         //ajax element to get label printed
         $.ajax({
             type: "POST",
-            url: "/Home/LabelPrinting",
+            url: "/Home/LabelPrintingV2",
             data: JSON.stringify(printDetails),
             dataType: "json",
             contentType: "application/json; charset=utf-8",
             success: function (data) {
                 //on receiving data, open pdf file
                 window.open("data:application/pdf;base64, " + data.PdfBase64Stream, '', "height=600,width=800");
-                
                 //call controller OrdersFulfillment to fulfill order(s)
                 window.location = "OrdersFulfillment?shopUrl=" + document.getElementById("shopUrl").value + "&orderIds=" + document.getElementById("orderDetails").value + "&labelNumbers=" + data.Labels;
             },

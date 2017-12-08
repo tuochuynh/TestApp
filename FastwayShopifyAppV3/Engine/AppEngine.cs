@@ -637,7 +637,7 @@ namespace FastwayShopifyAppV3.Engine
         /// <param name="labelNumbers">Fastway label numbers</param>
         /// <param name="apiKey">Fastway apiKey</param>
         /// <returns>byte content from API call response</returns>
-        public byte[] PrintLabel(Labeldetails details)
+        public PdfDocument PrintLabels(List<Labeldetails> labels, PdfDocument doc)
         {
             var client = new RestClient();
             client.BaseUrl = new Uri("http://nz.api.fastway.org/v2/");
@@ -648,33 +648,137 @@ namespace FastwayShopifyAppV3.Engine
             request.Resource = "dynamiclabels/generatelabel";
 
 
-            request.AddParameter("api_key", details.apiKey);
+            request.AddParameter("api_key", labels[0].apiKey);
 
-            request.AddParameter("items[0].colour", details.labelColour);
-            request.AddParameter("items[0].labelNumber", details.labelNumber);
-            request.AddParameter("items[0].weight", details.weight);
-            request.AddParameter("items[0].numberOfExcess", details.excess);
+            request.AddParameter("toCompany", labels[0].toCompany);
+            request.AddParameter("toAddress1", labels[0].toAddress1);
+            request.AddParameter("toCity", labels[0].toCity);
+            request.AddParameter("toPostCode", labels[0].toPostcode);
 
-            request.AddParameter("toCompany", details.toCompany);
-            request.AddParameter("toAddress1", details.toAddress1);
-            request.AddParameter("toCity", details.toCity);
-            request.AddParameter("toPostCode", details.toPostcode);
-            //request.AddParameter("contactName", details.toContactName);
-            //request.AddParameter("contactPhone", details.toContactPhone);
+            request.AddParameter("specialInstruction1", labels[0].specialInstruction1);
+            request.AddParameter("contactName", labels[0].toContactName);
+            request.AddParameter("contactPhone", labels[0].toContactPhone);
 
-            request.AddParameter("fromCompanyName", details.fromCompany);
-            request.AddParameter("fromAddress1", details.fromAddress1);
-            request.AddParameter("fromCity ", details.fromCity);
-            request.AddParameter("fromPhone ", details.fromPhone);
+            request.AddParameter("fromCompanyName", labels[0].fromCompany);
+            request.AddParameter("fromAddress1", labels[0].fromAddress1);
+            request.AddParameter("fromCity ", labels[0].fromCity);
+            request.AddParameter("fromPhone ", labels[0].fromPhone);
 
             request.AddParameter("labelDate", DateTime.Today.ToString("MM/dd/yyyy"));
-            request.AddParameter("destRF", details.toRfName);
+            request.AddParameter("destRF", labels[0].toRfName);
 
-            request.AddParameter("Type", details.printType);
+            request.AddParameter("Type", "Image");
 
+            for (int i = 0; i < labels.Count; i++)
+            {
+                request.AddParameter(string.Concat("items[", i, "].colour"), labels[i].labelColour);
+                request.AddParameter(string.Concat("items[", i, "].labelNumber"), labels[i].labelNumber);
+                request.AddParameter(string.Concat("items[", i, "].weight"), labels[i].weight + " kg");
+                request.AddParameter(string.Concat("items[", i, "].numberOfExcess"), labels[i].excess);
+                request.AddParameter("customerReference", labels[i].reference);
+            }
+
+            
+
+            //Execute API request, await for response
             IRestResponse response = client.Execute(request);
-            byte[] content = response.RawBytes;
-            return content;
+
+            //Parsing reresponse
+            JObject o = JObject.Parse(response.Content);
+
+            //Parsing result portion of response to get jpeg image strings
+            try
+            {
+                JArray a = JArray.Parse(o["result"]["jpegs"].ToString());
+
+                for (int j = 0; j < a.Count; j++)
+                {
+                    byte[] jpgByteArray = Convert.FromBase64String(a[j]["base64Utf8Bytes"].ToString());
+
+                    PdfPage page = doc.AddPage();
+
+                    page.Width = XUnit.FromInch(4);
+                    page.Height = XUnit.FromInch(6);
+
+                    MemoryStream stream = new MemoryStream(jpgByteArray);
+
+                    XImage image = XImage.FromStream(stream);
+                    XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                    gfx.DrawImage(image, 0, 0, 285, 435);
+                }
+
+                if (labels[0].ruralNumber != null & labels[0].ruralNumber != "")
+                {
+                    var clientRural = new RestClient();
+                    clientRural.BaseUrl = new Uri("http://nz.api.fastway.org/v2/");
+
+                    var requestRural = new RestRequest();
+
+                    requestRural.Resource = "dynamiclabels/generatelabel";
+
+
+                    requestRural.AddParameter("api_key", labels[0].apiKey);
+
+                    requestRural.AddParameter("toCompany", labels[0].toCompany);
+                    requestRural.AddParameter("toAddress1", labels[0].toAddress1);
+                    requestRural.AddParameter("toCity", labels[0].toCity);
+                    requestRural.AddParameter("toPostCode", labels[0].toPostcode);
+
+                    requestRural.AddParameter("specialInstruction1", labels[0].specialInstruction1);
+                    requestRural.AddParameter("contactName", labels[0].toContactName);
+                    requestRural.AddParameter("contactPhone", labels[0].toContactPhone);
+
+                    requestRural.AddParameter("fromCompanyName", labels[0].fromCompany);
+                    requestRural.AddParameter("fromAddress1", labels[0].fromAddress1);
+                    requestRural.AddParameter("fromCity ", labels[0].fromCity);
+                    requestRural.AddParameter("fromPhone ", labels[0].fromPhone);
+
+                    requestRural.AddParameter("labelDate", DateTime.Today.ToString("MM/dd/yyyy"));
+                    requestRural.AddParameter("destRF", labels[0].toRfName);
+
+                    requestRural.AddParameter("Type", "Image");
+
+                    for (int l = 0; l < labels.Count; l++)
+                    {
+                        requestRural.AddParameter(string.Concat("items[", l, "].colour"), "RURAL");
+                        requestRural.AddParameter(string.Concat("items[", l, "].labelNumber"), labels[l].ruralNumber);
+                        requestRural.AddParameter(string.Concat("items[", l, "].weight"), labels[l].weight);
+                        requestRural.AddParameter("customerReference", labels[l].reference);
+                    }
+
+                    IRestResponse responseRural = clientRural.Execute(requestRural);
+
+                    //Parsing response
+                    JObject oRural = JObject.Parse(responseRural.Content);
+                    JArray aRural = JArray.Parse(oRural["result"]["jpegs"].ToString());
+
+                    for (int k = 0; k < aRural.Count; k++)
+                    {
+                        byte[] jpgRuralByteArray = Convert.FromBase64String(aRural[k]["base64Utf8Bytes"].ToString());
+
+                        PdfPage page = doc.AddPage();
+
+                        page.Width = XUnit.FromInch(4);
+                        page.Height = XUnit.FromInch(6);
+
+                        MemoryStream stream = new MemoryStream(jpgRuralByteArray);
+
+                        XImage image = XImage.FromStream(stream);
+                        XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                        gfx.DrawImage(image, 0, 0, 285, 435);
+                    }
+                }
+
+                return doc;
+            }
+            catch (Exception e)
+            {
+                return doc;
+                throw e;
+            }
+            
 
         }
         /// <summary>
@@ -743,6 +847,74 @@ namespace FastwayShopifyAppV3.Engine
             
             return label;
         }
+        /// <summary>
+        /// Method to query for labels details V2 to use generate-label call instead of generate-label-for-labelnumbers
+        /// </summary>
+        /// <param name="details"></param>
+        /// <returns>return a label details objects</returns>
+        public Labeldetails LabelQueryV2(Labeldetails details)
+        {
+            //RestClient to make API calls
+            var client = new RestClient();
+            client.BaseUrl = new Uri("http://nz.api.fastway.org/v2/");
+            //Request object to hold data for querying
+            var request = new RestRequest();
+            //API type to call
+            request.Resource = "dynamiclabels/allocate-with-consignor-consignee-details";
+
+            //populate parameters required
+            request.AddParameter("api_key", details.apiKey);
+
+            request.AddParameter("PickupName", details.fromCompany);
+            request.AddParameter("PickupAddr1", details.fromAddress1);
+            request.AddParameter("PickupPostcode", details.fromPostcode);
+            request.AddParameter("PickupTown", details.fromCity);
+
+            request.AddParameter("DeliveryContactName", details.toCompany);
+            request.AddParameter("DeliveryAddr1", details.toAddress1);
+            request.AddParameter("DeliveryPostcode", details.toPostcode);
+            request.AddParameter("DeliveryTown", details.toCity);
+
+            request.AddParameter("WeightInKg", details.weight);
+            request.AddParameter("CountryCode", "6");
+
+            if (details.toContactName != "")
+            {
+                request.AddParameter("DeliveryContactName", details.toContactName);
+            }
+            if (details.toContactPhone != "")
+            {
+                request.AddParameter("DeliveryContactPhone", details.toContactPhone);
+            }
+            if (details.toEmail != "")
+            {
+                request.AddParameter("DeliveryEmailAddress", details.toEmail);
+            }
+
+            //NOTE: will turn to true in live
+            request.AddParameter("RequiresPickup", "False");
+            request.AddParameter("TestMode", "false");
+            //Service to be used, this is base on servicequery method
+            request.AddParameter("LabelColour", details.labelColour);
+            //execute API calls await for response
+            IRestResponse response = client.Execute(request);
+            //parsing response content to her labels numbers
+            JObject o = JObject.Parse(response.Content);
+
+            JArray test = JArray.Parse(o["result"]["usable_labels"].ToString());
+            //forming return strings containings all labels number required on this call (NOTE: excluding excess label number at this stage)
+            details.labelNumber = test[0]["base_label_number"].ToString();
+            details.excess = (int)test[0]["excess_label_count"];
+            if (test[0]["rural_label_number"] != null)
+            {
+                details.ruralNumber = test[0]["rural_label_number"].ToString();
+            }
+            details.toRfName = o["result"]["delivery_rf"].ToString();
+
+            return details;
+        }
+
+
     }
     /// <summary>
     /// Extension class to manage list value from request.Headers

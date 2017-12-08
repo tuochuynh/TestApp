@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using static FastwayShopifyAppV3.Engine.FastwayAPI;
 using Newtonsoft.Json.Linq;
+using PdfSharp.Pdf;
+using System.IO;
 
 namespace FastwayShopifyAppV3.Controllers
 {
@@ -238,9 +240,16 @@ namespace FastwayShopifyAppV3.Controllers
             label.toAddress1 = d["Address1"].ToString();
             label.toPostcode = d["Postcode"].ToString();
             label.toCity = d["Suburb"].ToString();
-            label.toCompany = d["Company"].ToString();
 
-            label.toContactName = d["ContactName"].ToString();
+            if (d["Company"].ToString() != "")
+            {
+                label.toCompany = d["Company"].ToString();
+                label.toContactName = d["ContactName"].ToString();
+            } else
+            {
+                label.toCompany = d["ContactName"].ToString();
+            }
+
             label.toContactPhone = d["ContactPhone"].ToString();
             label.toEmail = d["ContactEmail"].ToString();
 
@@ -306,6 +315,93 @@ namespace FastwayShopifyAppV3.Controllers
                 });
             } catch (Exception e)
             {//NOTE: manage exception if required
+                throw e;
+            }
+        }
+
+        [HttpPost]
+        public JsonResult LabelPrintingV2(string ShopUrl, string DeliveryDetails, string PackagingDetails)
+        {
+            //labeldetails object to call Fastway API
+            Labeldetails label = new Labeldetails();
+            //DB connection to query sender details
+            DbEngine conn = new DbEngine();
+            label.apiKey = conn.GetStringValues(ShopUrl, "FastwayApiKey");
+            //assign sender details
+            label.fromAddress1 = conn.GetStringValues(ShopUrl, "StoreAddress1");
+            label.fromPostcode = conn.GetStringValues(ShopUrl, "Postcode");
+            label.fromCity = conn.GetStringValues(ShopUrl, "Suburb");
+            label.fromCompany = conn.GetStringValues(ShopUrl, "StoreName");
+            //parse delivery details            
+            JObject d = JObject.Parse(DeliveryDetails);
+            //assign receiver details
+            label.toAddress1 = d["Address1"].ToString();
+            label.toPostcode = d["Postcode"].ToString();
+            label.toCity = d["Suburb"].ToString();
+            label.specialInstruction1 = d["SpecialInstruction1"].ToString();
+
+            if (d["Company"].ToString() != "")
+            {
+                label.toCompany = d["Company"].ToString();
+                label.toContactName = d["ContactName"].ToString();
+            }
+            else
+            {
+                label.toCompany = d["ContactName"].ToString();
+            }
+
+            label.toContactPhone = d["ContactPhone"].ToString();
+            
+
+            //parse packaging details
+            JArray p = JArray.Parse(PackagingDetails);
+            //list of labelDetails that hold the labels being used
+            List<Labeldetails> labelDetails = new List<Labeldetails>();
+            List<string> labelNumbers = new List<string>();
+
+
+            for (int i = 0; i < p.Count; i++)
+            {
+                for (int j = 0; j < (int)p[i]["Items"]; j++)
+                {
+                    //package details
+                    label.weight = (double)p[i]["Weight"];
+                    label.labelColour = p[i]["BaseLabel"].ToString();
+                    label.reference = p[i]["Reference"].ToString();
+                    //new fastwayAPI object to query
+                    FastwayAPI getLabel = new FastwayAPI();
+                    //get label with V2 method
+                    Labeldetails l = new Labeldetails();
+                    l = getLabel.LabelQueryV2(label);
+                    labelDetails.Add(l);
+                    labelNumbers.Add(l.labelNumber);
+                }
+            }
+
+            PdfDocument doc = new PdfDocument();
+
+            if (labelDetails.Count > 0)
+            {
+                FastwayAPI getBase = new FastwayAPI();
+                doc = getBase.PrintLabels(labelDetails, doc);
+            }
+
+            MemoryStream pdfStream = new MemoryStream();
+            doc.Save(pdfStream, false);
+            byte[] pdfBytes = pdfStream.ToArray();
+
+            var pdfString = Convert.ToBase64String(pdfBytes);
+
+            try
+            {
+                return Json(new
+                {//return status success
+                    Labels = String.Join(",", labelNumbers),
+                    PdfBase64Stream = pdfString
+                });
+            }
+            catch (Exception e)
+            {//error
                 throw e;
             }
         }
@@ -424,5 +520,7 @@ namespace FastwayShopifyAppV3.Controllers
 
         }
 
+
+        
     }
 }
