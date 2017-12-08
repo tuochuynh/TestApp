@@ -60,8 +60,8 @@ namespace FastwayShopifyAppV3.Controllers
             List<Order> orderDetails = new List<Order>();//list of order details
             List<Address> deliveryAddress = new List<Address>();//list of delivery details
             List<string> emails = new List<string>();//list of emails addresses
-            
-            if(orders==null)//No order select (in case customer reach this page from outside of their admin page
+
+            if (orders == null)//No order select (in case customer reach this page from outside of their admin page
             {
                 return View();//NOTE: might need to redirect them to their admin page
             }
@@ -92,7 +92,7 @@ namespace FastwayShopifyAppV3.Controllers
                     bool check = true;
                     if (deliveryAddress.Count > 0)
                     {
-                        for (var l = 0; l < orderDetails.Count; l++)
+                        for (var l = 0; l < deliveryAddress.Count; l++)
                         {
                             if (deliveryAddress[l].Name == k.ShippingAddress.Name)
                             {
@@ -109,30 +109,30 @@ namespace FastwayShopifyAppV3.Controllers
                 orderDetails.Add(k);//add order details into list of order details
             }
 
-            //jsonserialiser object to form json from list
+            ////jsonserialiser object to form json from list
             JavaScriptSerializer jsonSerialiser = new JavaScriptSerializer();
-            //creating json about orders to pass back to View()
-            string orderJson = jsonSerialiser.Serialize(orderDetails);
-            
-            
+            ////creating json about orders to pass back to View()
+            //string orderJson = jsonSerialiser.Serialize(orderDetails);
+
+
             //creating json about delivery address to pass back to View()
             string address = "";
-            if (deliveryAddress.Count() == 0)
+            if (deliveryAddress.Count == 0)
             {//No delivery address found
                 address = "NoAddress";
-            }
-            else if (deliveryAddress.Count()>1)
+            } else if (deliveryAddress.Count > 1)
             {//More than one addresses found
                 address = "MoreThanOne";
             } else
             {//one address
                 address = jsonSerialiser.Serialize(deliveryAddress[0]);
             }
+            
 
             Response.Write("<input id='shopUrl' type='hidden' value='" + shop + "'>");//passing shopUrl to View() for further queries
             Response.Write("<input id='orderDetails' type='hidden' value='" + orders/*orderJson*/ + "'>");//passing orderIds to View() for further queries
             Response.Write("<input id='deliveryAddress' type='hidden' value='" + address + "'>");//passing address to View() for further queries
-            Response.Write("<input id='emailAddress' type='hidden' value='" + emails[0] + "'>");//passing email address
+            if(emails.Count>=1) Response.Write("<input id='emailAddress' type='hidden' value='" + emails[0] + "'>");//passing email address
             return View();
 
         }
@@ -318,7 +318,13 @@ namespace FastwayShopifyAppV3.Controllers
                 throw e;
             }
         }
-
+        /// <summary>
+        /// V2 of LabelPrinting using generate-label call instead of denerate-label-for-labelnumber
+        /// </summary>
+        /// <param name="ShopUrl"></param>
+        /// <param name="DeliveryDetails"></param>
+        /// <param name="PackagingDetails"></param>
+        /// <returns></returns>
         [HttpPost]
         public JsonResult LabelPrintingV2(string ShopUrl, string DeliveryDetails, string PackagingDetails)
         {
