@@ -3,7 +3,7 @@
     ViewBag.Title = "NewConsignment";
 }
 
-@*<div id="load"></div>*@
+<div id="load"></div>
 <div id="mainContainer" class="container">
     <div class="row">
         <div id="rightside" class="col-xs-12 col-sm-12 col-md-10" style="min-height:836px;">
@@ -117,7 +117,7 @@
                 </div>
                 <div class="col-xs-6">
                     <div class="pull-right" style="width:120px">
-                        <table style="text-align:right;vertical-align:top" @*width="100%"*@ cellspacing="0">
+                        <table style="text-align:right;vertical-align:top" cellspacing="0">
                             <tbody>
                                 <tr>
                                     <td>
@@ -159,6 +159,7 @@
 
 
 <script type="text/javascript">
+    document.getElementById('load').style.visibility = "hidden";
     //add first package
     addPackage();
     //Check for address and populate if required
@@ -182,11 +183,7 @@
         document.getElementById('tbxDeliveryCity').value = addressDetails.City;
         document.getElementById('tbxDeliveryPostcode').value = addressDetails.Zip;
         document.getElementById('tbxRegion').value = addressDetails.Province;
-
-        if (addressDetails.Phone != "") {
-            document.getElementById('tbPhone').value = addressDetails.Phone;
-        }
-
+        document.getElementById('tbPhone').value = addressDetails.Phone;
         document.getElementById('tbEmail').value = document.getElementById('emailAddress').value;
         
 
@@ -239,6 +236,7 @@
                 Type: document.getElementById('packaging' + item).value
             };
             //ajax element to query
+            document.getElementById('load').style.visibility = "visible";
             $.ajax({
                 type: "POST",
                 url: "/Home/LabelQuery",
@@ -259,11 +257,13 @@
                         document.getElementById('extra' + item).innerHTML = extra;
                         updateTotalCost();
                     }
+                    document.getElementById('load').style.visibility = "hidden";
                 },
                 error: function () {//error, warning and remove costs
                     document.getElementById('extra' + item).innerHTML = "No service available"
                     document.getElementById('totalCost' + item).value = "";
                     updateTotalCost();
+                    document.getElementById('load').style.visibility = "hidden";
                 }
             });
         }
@@ -425,25 +425,58 @@
                 input.setAttribute('type', 'number');
                 input.setAttribute('min', 0);
                 input.setAttribute('max', 200);
-                //default falue = 0
+                //default Value = 0
                 input.value = 0;
                 //when changed
                 input.onchange = function () {
-                    //if at least one of the dimensions is equal to 0, do nothing. Otherwise calculate cubic size and update
-                    if (document.getElementById("length" + k).value > 0 && document.getElementById("width" + k).value > 0 && document.getElementById("height" + k).value > 0) {
-                        var le = document.getElementById('length' + k).value;
-                        var we = document.getElementById('width' + k).value;
-                        var he = document.getElementById('height' + k).value;
-                        var cubic = le * we * he / 1000000;
-                        document.getElementById("cubic" + k).value = cubic.toFixed(3);
-                        //check if physical weight value is not null and > 0 
-                        if (document.getElementById("weight" + k).value != "" && document.getElementById("weight" + k).value > 0) {
-                            //query for service
-                            serviceQuery(document.getElementById("weight" + k));
+                    if (document.getElementById("weight" + k).value != "" && document.getElementById("weight" + k).value != 0) {
+                        if (document.getElementById("length" + k).value > 0 && document.getElementById("width" + k).value > 0 && document.getElementById("height" + k).value > 0) {
+                            var le = document.getElementById('length' + k).value;
+                            var we = document.getElementById('width' + k).value;
+                            var he = document.getElementById('height' + k).value;
+                            var cubic = le * we * he / 1000000;
+                            if (document.getElementById("cubic" + k).value == "") {
+                                document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                                if (cubic * 200 > document.getElementById("weight" + k).value) {
+                                    serviceQuery(document.getElementById("weight" + k));
+                                }
+                            } else {
+                                if (document.getElementById("cubic" + k).value * 200 > document.getElementById("weight" + k).value) {
+                                    if (cubic > document.getElementById("cubic" + k).value) {
+                                        document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                                        serviceQuery(document.getElementById("weight" + k));
+                                    } else if (cubic * 200 < document.getElementById("weight" + k).value)  {
+                                        document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                                        serviceQuery(document.getElementById("weight" + k));
+                                    } else {
+                                        document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                                    }
+                                    
+                                } else {
+                                    if (cubic * 200 > document.getElementById("weight" + k).value) {
+                                        document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                                        serviceQuery(document.getElementById("weight" + k));
+                                    } else {
+                                        document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                                    }
+                                }
+                            }
+                        } else {
+                            if (document.getElementById("cubic" + k).value * 200 > document.getElementById("weight" + k).value) {
+                                document.getElementById("cubic" + k).value = "";
+                                serviceQuery(document.getElementById("weight" + k));
+                            } else {
+                                document.getElementById("cubic" + k).value = "";
+                            }
                         }
                     } else {
-                        document.getElementById("cubic" + k).value = "";
-                        serviceQuery(document.getElementById("weight" + k));
+                        if (document.getElementById("length" + k).value > 0 && document.getElementById("width" + k).value > 0 && document.getElementById("height" + k).value > 0) {
+                            var le = document.getElementById('length' + k).value;
+                            var we = document.getElementById('width' + k).value;
+                            var he = document.getElementById('height' + k).value;
+                            var cubic = le * we * he / 1000000;
+                            document.getElementById("cubic" + k).value = cubic.toFixed(3);
+                        }
                     }
                 }
             }
@@ -489,70 +522,87 @@
     }
     //Collect details and request labels from Fastway server
     function printLabels() {
-        //delivery details NOTE: need to add more details in if neededs, belows are required to be able to proceed.
-        var phone = "";
-        if (document.getElementById('tbMobilePhone').value != "") {
-            phone = document.getElementById('tbMobilePhone').value;
-        } else {
-            phone = document.getElementById('tbPhone').value;
-        }
-        
-        
+        var itemTable = document.getElementById("tblItems");
+        var n = itemTable.getElementsByTagName("tr").length;
 
-        var deliveryDetails = {
-            Address1: document.getElementById('tbxDeliveryAddress').value,
-            Suburb: document.getElementById('tbxDeliveryCity').value,
-            Postcode: document.getElementById('tbxDeliveryPostcode').value,
-            Company: document.getElementById('tbxCustomerName').value,
-            ContactName: document.getElementById('tbContactName').value,
-            ContactPhone: phone,
-            ContactEmail: document.getElementById('tbEmail').value,
-            SpecialInstruction1: document.getElementById('tbInstructions').value
-            
-        }
-        //get required variables
-        var itemTable = document.getElementById('tblItems');
-        var itemNumber = itemTable.getElementsByTagName("tr").length - 1;
-        //forming packaging details json
-        var packagingDetails = '[';
-
-        for (var i = 0; i < itemNumber; i++){
-            var extraString = document.getElementById("extra" + i).innerHTML;
-            packagingDetails += '{'
-                + '"Reference":"' + document.getElementById("reference" + i).value + '",'
-                + '"Items":"' + document.getElementById("items" + i).value + '",'
-                + '"Weight":"' + document.getElementById("weight" + i).value + '",'
-                + '"BaseLabel":"' + getService(extraString) + '"'
-                + '}';   
-            if (i != itemNumber - 1) { packagingDetails += ',';}
-        }
-
-        packagingDetails += ']';
-        //forming data to send to back-end
-        var printDetails = {
-            ShopUrl: document.getElementById('shopUrl').value,
-            DeliveryDetails: JSON.stringify(deliveryDetails),
-            PackagingDetails: packagingDetails
-        };
-        //ajax element to get label printed
-        $.ajax({
-            type: "POST",
-            url: "/Home/LabelPrintingV2",
-            data: JSON.stringify(printDetails),
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            success: function (data) {
-                //on receiving data, open pdf file
-                window.open("data:application/pdf;base64, " + data.PdfBase64Stream, '', "height=600,width=800");
-                //call controller OrdersFulfillment to fulfill order(s)
-                window.location = "OrdersFulfillment?shopUrl=" + document.getElementById("shopUrl").value + "&orderIds=" + document.getElementById("orderDetails").value + "&labelNumbers=" + data.Labels;
-            },
-            error: function () {
-                //NOTE: handling errors if required
-                alert("There was an error!");
+        if (n >= 2) {//Not the first package
+            var check = true;
+            for (var k = 0; k < (n - 1); k++) {
+                //check all totalCost box if packages hasbeen all used
+                if (document.getElementById('totalCost' + k).value == "") check = false;
             }
-        });
+            if (!check) {//if not, show warning
+                document.getElementById('warning3').innerText = "There are unused package(s)";
+                document.getElementById('warning3').style.display = "block";
+            } else {
+                document.getElementById('warning3').style.display = "none";
+                //delivery details NOTE: need to add more details in if neededs, belows are required to be able to proceed.
+                var phone = "";
+                if (document.getElementById('tbMobilePhone').value != "") {
+                    phone = document.getElementById('tbMobilePhone').value;
+                } else {
+                    phone = document.getElementById('tbPhone').value;
+                }
 
+                var deliveryDetails = {
+                    Address1: document.getElementById('tbxDeliveryAddress').value,
+                    Suburb: document.getElementById('tbxDeliveryCity').value,
+                    Postcode: document.getElementById('tbxDeliveryPostcode').value,
+                    Company: document.getElementById('tbxCustomerName').value,
+                    ContactName: document.getElementById('tbContactName').value,
+                    ContactPhone: phone,
+                    ContactEmail: document.getElementById('tbEmail').value,
+                    SpecialInstruction1: document.getElementById('tbInstructions').value
+                }
+                //get required variables
+
+                var itemNumber = itemTable.getElementsByTagName("tr").length - 1;
+                var packagingDetails = '[';
+
+                for (var i = 0; i < itemNumber; i++) {
+                    var extraString = document.getElementById("extra" + i).innerHTML;
+                    if (extraString != "") {
+                        packagingDetails += '{'
+                            + '"Reference":"' + document.getElementById("reference" + i).value + '",'
+                            + '"Items":"' + document.getElementById("items" + i).value + '",'
+                            + '"Weight":"' + document.getElementById("weight" + i).value + '",'
+                            + '"BaseLabel":"' + getService(extraString) + '"'
+                            + '}';
+                        if (i != itemNumber - 1) { packagingDetails += ','; }
+                    }
+
+                }
+                packagingDetails += ']';
+                //forming data to send to back-end
+                var printDetails = {
+                    ShopUrl: document.getElementById('shopUrl').value,
+                    DeliveryDetails: JSON.stringify(deliveryDetails),
+                    PackagingDetails: packagingDetails
+                };
+                //ajax element to get label printed
+                document.getElementById('load').style.visibility = "visible";
+                $.ajax({
+                    type: "POST",
+                    url: "/Home/LabelPrintingV2",
+                    data: JSON.stringify(printDetails),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        //on receiving data, open pdf file
+                        window.open("data:application/pdf;base64, " + data.PdfBase64Stream, '', "height=600,width=800");
+                        //call controller OrdersFulfillment to fulfill order(s)
+                        window.location = "OrdersFulfillment?shopUrl=" + document.getElementById("shopUrl").value + "&orderIds=" + document.getElementById("orderDetails").value + "&labelNumbers=" + data.Labels;
+                        document.getElementById('load').style.visibility = "hidden";
+                    },
+                    error: function () {
+                        //NOTE: handling errors if required
+                        document.getElementById('load').style.visibility = "hidden";
+                        alert("There was an error!");
+                    }
+                });
+
+            }
+        }
     }
     //get Service name e.g. ORANGE/RED etc
     function getService(str) {
@@ -578,23 +628,11 @@
             document.getElementById('spanExGST').innerHTML = total.toFixed(2);
             document.getElementById('spanGST').innerHTML = GST.toFixed(2);
             document.getElementById('spanTotal').innerHTML = inGST.toFixed(2);
+
+            document.getElementById('warning1').style.display = "none";
+            document.getElementById('warning2').style.display = "none";
+            document.getElementById('warning3').style.display = "none";
+
     }
     //function to update weight when cubic changed
-
-
-
-    //loading icon before page loaded
-    //document.onreadystatechange = function () {
-    //    var state = document.readyState
-    //    if (state == 'interactive') {
-    //        document.getElementById('mainContainer').style.visibility = "hidden";
-    //    } else if (state == 'complete') {
-    //        setTimeout(function () {
-    //            document.getElementById('interactive');
-    //            document.getElementById('load').style.visibility = "hidden";
-    //            document.getElementById('mainContainer').style.visibility = "visible";
-    //        }, 500);
-    //    }
-    //}
-
 </script>

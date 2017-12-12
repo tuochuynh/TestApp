@@ -631,12 +631,11 @@ namespace FastwayShopifyAppV3.Engine
         }
 
         /// <summary>
-        /// Method to query for pdfstreams on a label number with adjusted data
-        /// NOTE: NOT BEING USED
+        /// Method to query for pdf version of labels
         /// </summary>
-        /// <param name="labelNumbers">Fastway label numbers</param>
-        /// <param name="apiKey">Fastway apiKey</param>
-        /// <returns>byte content from API call response</returns>
+        /// <param name="labels">list of labels deails</param>
+        /// <param name="doc">pdf document to append more label</param>
+        /// <returns>reutnr</returns>
         public PdfDocument PrintLabels(List<Labeldetails> labels, PdfDocument doc)
         {
             var client = new RestClient();
