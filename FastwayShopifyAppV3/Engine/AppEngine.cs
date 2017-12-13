@@ -377,6 +377,7 @@ namespace FastwayShopifyAppV3.Engine
         public int SortOrder { get; set; }
         public int BaseWeight { get; set; }
         public int MaxWeight { get; set; }
+        public string Saturday { get; set; }
     }
     /// <summary>
     /// Class to manage Fastway API calls
@@ -395,6 +396,8 @@ namespace FastwayShopifyAppV3.Engine
             public double weight;
             public int excess;
             public string ruralNumber;
+            public string saturdayNumber;
+            public bool saturday;
 
             public string toCompany;
             public string toAddress1;
@@ -490,6 +493,7 @@ namespace FastwayShopifyAppV3.Engine
                 l.SortOrder = (int)cheapParcel["sort_order"];
                 l.BaseWeight = (int)cheapParcel["base_weight"];
                 l.MaxWeight = (int)cheapParcel["max_weight"];
+                l.Saturday = o["result"]["isSaturdayDeliveryAvailable"].ToString();
                 labels.Add(l);
 
                 //parsing usable labels
@@ -514,6 +518,7 @@ namespace FastwayShopifyAppV3.Engine
                         s.SortOrder = (int)test[i]["sort_order"];
                         s.BaseWeight = (int)test[i]["base_weight"];
                         s.MaxWeight = (int)test[i]["max_weight"];
+                        s.Saturday = o["result"]["isSaturdayDeliveryAvailable"].ToString();
                         labels.Add(s);
                     }
 
@@ -770,6 +775,70 @@ namespace FastwayShopifyAppV3.Engine
                     }
                 }
 
+
+                if (labels[0].saturdayNumber != null & labels[0].saturdayNumber != "")
+                {
+                    var clientSaturday = new RestClient();
+                    clientSaturday.BaseUrl = new Uri("http://nz.api.fastway.org/v2/");
+
+                    var requestSaturday = new RestRequest();
+
+                    requestSaturday.Resource = "dynamiclabels/generatelabel";
+
+
+                    requestSaturday.AddParameter("api_key", labels[0].apiKey);
+
+                    requestSaturday.AddParameter("toCompany", labels[0].toCompany);
+                    requestSaturday.AddParameter("toAddress1", labels[0].toAddress1);
+                    requestSaturday.AddParameter("toCity", labels[0].toCity);
+                    requestSaturday.AddParameter("toPostCode", labels[0].toPostcode);
+
+                    requestSaturday.AddParameter("specialInstruction1", labels[0].specialInstruction1);
+                    requestSaturday.AddParameter("contactName", labels[0].toContactName);
+                    requestSaturday.AddParameter("contactPhone", labels[0].toContactPhone);
+
+                    requestSaturday.AddParameter("fromCompanyName", labels[0].fromCompany);
+                    requestSaturday.AddParameter("fromAddress1", labels[0].fromAddress1);
+                    requestSaturday.AddParameter("fromCity ", labels[0].fromCity);
+                    requestSaturday.AddParameter("fromPhone ", labels[0].fromPhone);
+
+                    requestSaturday.AddParameter("labelDate", DateTime.Today.ToString("MM/dd/yyyy"));
+                    requestSaturday.AddParameter("destRF", labels[0].toRfName);
+
+                    requestSaturday.AddParameter("Type", "Image");
+
+                    for (int l = 0; l < labels.Count; l++)
+                    {
+                        requestSaturday.AddParameter(string.Concat("items[", l, "].colour"), "SATURDAY");
+                        requestSaturday.AddParameter(string.Concat("items[", l, "].labelNumber"), labels[l].saturdayNumber);
+                        requestSaturday.AddParameter(string.Concat("items[", l, "].weight"), labels[l].weight);
+                        requestSaturday.AddParameter("customerReference", labels[l].reference);
+                    }
+
+                    IRestResponse responseSaturday = clientSaturday.Execute(requestSaturday);
+
+                    //Parsing response
+                    JObject oSaturday = JObject.Parse(responseSaturday.Content);
+                    JArray aSaturday = JArray.Parse(oSaturday["result"]["jpegs"].ToString());
+
+                    for (int k = 0; k < aSaturday.Count; k++)
+                    {
+                        byte[] jpgRuralByteArray = Convert.FromBase64String(aSaturday[k]["base64Utf8Bytes"].ToString());
+
+                        PdfPage page = doc.AddPage();
+
+                        page.Width = XUnit.FromInch(4);
+                        page.Height = XUnit.FromInch(6);
+
+                        MemoryStream stream = new MemoryStream(jpgRuralByteArray);
+
+                        XImage image = XImage.FromStream(stream);
+                        XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                        gfx.DrawImage(image, 0, 0, 285, 435);
+                    }
+                }
+
                 return doc;
             }
             catch (Exception e)
@@ -895,6 +964,11 @@ namespace FastwayShopifyAppV3.Engine
             request.AddParameter("TestMode", "false");
             //Service to be used, this is base on servicequery method
             request.AddParameter("LabelColour", details.labelColour);
+
+            if (details.saturday == true)
+            {
+                request.AddParameter("SaturdayDelivery", true);
+            }
             //execute API calls await for response
             IRestResponse response = client.Execute(request);
             //parsing response content to her labels numbers
@@ -908,7 +982,13 @@ namespace FastwayShopifyAppV3.Engine
             {
                 details.ruralNumber = test[0]["rural_label_number"].ToString();
             }
+            if (test[0]["saturday_label_number"]!= null)
+            {
+                details.saturdayNumber = test[0]["saturday_label_number"].ToString();
+            }
+
             details.toRfName = o["result"]["delivery_rf"].ToString();
+
 
             return details;
         }

@@ -199,6 +199,8 @@ namespace FastwayShopifyAppV3.Controllers
                             TotalCost = service.CostexgstTotalChargeToEndUser,
                             Rural = service.RuralLabelCostExgst > 0 ? true : false,
                             Excess = service.ExcessLabelCount,
+                            Saturday = services.First().Saturday,
+                            Test1 = service.RuralLabelCostExgst
                         });
                     }
                 } else
@@ -326,7 +328,7 @@ namespace FastwayShopifyAppV3.Controllers
         /// <param name="PackagingDetails"></param>
         /// <returns></returns>
         [HttpPost]
-        public JsonResult LabelPrintingV2(string ShopUrl, string DeliveryDetails, string PackagingDetails)
+        public JsonResult LabelPrintingV2(string ShopUrl, string DeliveryDetails, string PackagingDetails, bool Saturday)
         {
             //labeldetails object to call Fastway API
             Labeldetails label = new Labeldetails();
@@ -365,6 +367,7 @@ namespace FastwayShopifyAppV3.Controllers
             List<Labeldetails> labelDetails = new List<Labeldetails>();
             List<string> labelNumbers = new List<string>();
 
+            
 
             for (int i = 0; i < p.Count; i++)
             {
@@ -374,6 +377,8 @@ namespace FastwayShopifyAppV3.Controllers
                     label.weight = (double)p[i]["Weight"];
                     label.labelColour = p[i]["BaseLabel"].ToString();
                     label.reference = p[i]["Reference"].ToString();
+                    label.saturday = Saturday;
+                    
                     //new fastwayAPI object to query
                     FastwayAPI getLabel = new FastwayAPI();
                     //get label with V2 method

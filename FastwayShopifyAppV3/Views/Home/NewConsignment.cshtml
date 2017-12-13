@@ -48,8 +48,11 @@
                             <input id="tbxRegion" class="form-control" placeholder="Region:" type="text" style="" />
                         </div>
                     </div>
-                    <div class="panel-footer" style="display:none">
-                        <input checked data-toggle="toggle" type="checkbox" id="satCbox"/>
+                    <div id="satFooter" class="panel-footer" style="display:none">
+                        <label>
+                            <input id="satCbx" name="satCbx" type="checkbox"  />
+                            Saturday Service
+                        </label>
                     </div>
                 </div>
             </div>
@@ -115,7 +118,7 @@
                     <a class="btn btn-primary" onclick="addPackage()">
                         Add package
                     </a>
-                    <a class="btn btn-danger" onclick="reset()">
+                    <a id="reset-button" class="btn btn-danger" onclick="reset()">
                         Reset
                     </a>
                 </div>
@@ -163,6 +166,7 @@
 
 
 <script type="text/javascript">
+    //$("[name='satCbx']").bootstrapSwitch();
     document.getElementById('load').style.visibility = "hidden";
     //add first package
     addPackage();
@@ -259,12 +263,15 @@
                         if (data.Rural) { extra = extra + "Rural <br>" }
                         if (data.Excess > 0) { extra = extra + data.Excess + " Excess" }
                         document.getElementById('extra' + item).innerHTML = extra;
+                        if (data.Saturday == "True") {
+                            document.getElementById("satFooter").style.display = "block";
+                        }
                         updateTotalCost();
                     }
                     document.getElementById('load').style.visibility = "hidden";
                 },
                 error: function () {//error, warning and remove costs
-                    document.getElementById('extra' + item).innerHTML = "No service available"
+                    document.getElementById('extra' + item).innerHTML = "There was an error, please try again later"
                     document.getElementById('totalCost' + item).value = "";
                     updateTotalCost();
                     document.getElementById('load').style.visibility = "hidden";
@@ -515,6 +522,9 @@
         document.getElementById('spanExGST').innerHTML = "0.00";
         document.getElementById('spanGST').innerHTML = "0.00";
         document.getElementById('spanTotal').innerHTML = "0.00";
+        document.getElementById("satCbx").checked = false;
+        document.getElementById("satFooter").style.display = "none";
+
     }
     //Check for required fields before query labels
     function addressCheck() {
@@ -559,8 +569,9 @@
                     SpecialInstruction1: document.getElementById('tbInstructions').value
                 }
                 //get required variables
-
+                
                 var itemNumber = itemTable.getElementsByTagName("tr").length - 1;
+                var saturday = document.getElementById("satCbx").checked;
                 var packagingDetails = '[';
 
                 for (var i = 0; i < itemNumber; i++) {
@@ -581,7 +592,8 @@
                 var printDetails = {
                     ShopUrl: document.getElementById('shopUrl').value,
                     DeliveryDetails: JSON.stringify(deliveryDetails),
-                    PackagingDetails: packagingDetails
+                    PackagingDetails: packagingDetails,
+                    Saturday: document.getElementById("satCbx").checked
                 };
                 //ajax element to get label printed
                 document.getElementById('load').style.visibility = "visible";
@@ -638,5 +650,6 @@
             document.getElementById('warning3').style.display = "none";
 
     }
-    //function to update weight when cubic changed
+
+
 </script>
