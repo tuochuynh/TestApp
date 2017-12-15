@@ -244,6 +244,7 @@
     <Content Include="Views\Home\NewConsignment.cshtml" />
     <Content Include="Views\Home\OrdersFulfillment.cshtml" />
     <Content Include="Views\Home\Preferences.cshtml" />
+    <Content Include="Views\Home\RePrintLabels.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

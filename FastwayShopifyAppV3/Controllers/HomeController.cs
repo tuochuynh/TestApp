@@ -117,6 +117,7 @@ namespace FastwayShopifyAppV3.Controllers
 
             //creating json about delivery address to pass back to View()
             string address = "";
+            string note = "";
             if (deliveryAddress.Count == 0)
             {//No delivery address found
                 address = "NoAddress";
@@ -126,6 +127,13 @@ namespace FastwayShopifyAppV3.Controllers
             } else
             {//one address
                 address = jsonSerialiser.Serialize(deliveryAddress[0]);
+                for (int i = 0; i< orderDetails.Count; i++)
+                {
+                    if (orderDetails[i].Note != "")
+                    {
+                        note += orderDetails[i].Note;
+                    }
+                }
             }
             
 
@@ -133,9 +141,23 @@ namespace FastwayShopifyAppV3.Controllers
             Response.Write("<input id='orderDetails' type='hidden' value='" + orders/*orderJson*/ + "'>");//passing orderIds to View() for further queries
             Response.Write("<input id='deliveryAddress' type='hidden' value='" + address + "'>");//passing address to View() for further queries
             if(emails.Count>=1) Response.Write("<input id='emailAddress' type='hidden' value='" + emails[0] + "'>");//passing email address
+            if (note != "") Response.Write("<input id='specialInstruction' type='hidden' value='" + note + "'>");
             return View();
 
         }
+
+        public async Task<ActionResult> RePrintLabels(string shop, string id)
+        {
+
+
+
+            Response.Write("<input id='shopUrl' value='" + shop + "'>");
+            Response.Write("<input id='orderid' value='" + id + "'>");
+
+            return View();
+        }
+
+
         /// <summary>
         /// Listen to query from NewConsignment controler, query and response with available services
         /// </summary>

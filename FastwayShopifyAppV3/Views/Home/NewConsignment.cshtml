@@ -166,7 +166,7 @@
 
 
 <script type="text/javascript">
-    //$("[name='satCbx']").bootstrapSwitch();
+    $("#testCbx").bootstrapSwitch();
     document.getElementById('load').style.visibility = "hidden";
     //add first package
     addPackage();
@@ -193,6 +193,7 @@
         document.getElementById('tbxRegion').value = addressDetails.Province;
         document.getElementById('tbPhone').value = addressDetails.Phone;
         document.getElementById('tbEmail').value = document.getElementById('emailAddress').value;
+        document.getElementById('tbInstructions').value = document.getElementById('specialInstruction').value;
         
 
     }
@@ -524,6 +525,8 @@
         document.getElementById('spanTotal').innerHTML = "0.00";
         document.getElementById("satCbx").checked = false;
         document.getElementById("satFooter").style.display = "none";
+        
+        
 
     }
     //Check for required fields before query labels
