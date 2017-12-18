@@ -44,6 +44,16 @@
                         <td>API Key:<span style="color:red;font-weight:bold">*</span></td>
                         <td><input id="tbxApiKey" class="form-control" placeholder="API Key" type="text" /></td>
                     </tr>
+                    <tr id="countryCodeRow">
+                        <td>Country:<span style="color:red;font-weight:bold">*</span></td>
+                        <td><select id="slcCountry" class="form-control" >
+                            <option disabled selected value> -- select an option -- </option>
+                            <option value="1">Australia</option>
+                            <option value="6">New Zealand</option>
+                            <option value="11">Ireland or N.Ireland</option>
+                            <option value="24">South Africa</option>
+                            </select></td>
+                    </tr>
                 </tbody>
             </table>
             <div class="row">
@@ -61,6 +71,10 @@
                 document.getElementById("tbxStoreSuburb").value = shopDetails.Suburb;
                 document.getElementById("tbxStorePostcode").value = shopDetails.Postcode;
                 document.getElementById("tbxApiKey").value = shopDetails.FastwayApiKey;
+
+                if (shopDetails.CountryCode != -1) {
+                    document.getElementById("slcCountry").value = shopDetails.CountryCode;
+                }
             </script>
         </div>
     </div>
@@ -76,17 +90,20 @@
             document.getElementById("tbxStoreAddress1").value != shopDetails.StoreAddress1 ||
             document.getElementById("tbxStoreSuburb").value != shopDetails.Suburb ||
             document.getElementById("tbxStorePostcode").value != shopDetails.Postcode ||
-            document.getElementById("tbxApiKey").value != shopDetails.FastwayApiKey) {
+            document.getElementById("tbxApiKey").value != shopDetails.FastwayApiKey ||
+            document.getElementById("slcCountry").value != shopDetails.CountryCode) {
 
             document.getElementById('warning1').style.display = "none";
-            //if yes, preparing data to be updated
+
             var updatedDetails = {
                 ShopUrl: shopDetails.StoreUrl,
                 StoreName: document.getElementById("tbxStoreName").value,
                 StoreAddress1: document.getElementById("tbxStoreAddress1").value,
                 Suburb: document.getElementById("tbxStoreSuburb").value,
                 Postcode: document.getElementById("tbxStorePostcode").value,
-                ApiKey: document.getElementById("tbxApiKey").value
+                ApiKey: document.getElementById("tbxApiKey").value,
+                CountryCode: document.getElementById("slcCountry").value
+                
             };
             //ajax element to communicate with backend to update data
             $.ajax({
@@ -96,8 +113,7 @@
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {//on success
-                    //alert("Update: " + data.Updated);
-                    document.getElementById('warning1').innerText = "Details has been updated";
+                    document.getElementById('warning1').innerText = "Details have been updated";
                     document.getElementById('shopDetails').value = data.Updated;
                     document.getElementById('warning1').style.display = "block";
                 },

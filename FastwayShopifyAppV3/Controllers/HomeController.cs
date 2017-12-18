@@ -523,7 +523,7 @@ namespace FastwayShopifyAppV3.Controllers
         /// <param name="ApiKey">Fastway Apikey to make calls</param>
         /// <returns></returns>
         [HttpPost]
-        public JsonResult UpdatePreferences(string ShopUrl, string StoreName, string StoreAddress1, string Suburb, string Postcode, string ApiKey)
+        public JsonResult UpdatePreferences(string ShopUrl, string StoreName, string StoreAddress1, string Suburb, string Postcode, string ApiKey, int CountryCode)
         {
             //update values
             DbEngine conn = new DbEngine();
@@ -532,7 +532,7 @@ namespace FastwayShopifyAppV3.Controllers
             conn.UpdateStringValues(ShopUrl, "StoreAddress1", StoreAddress1);
             conn.UpdateStringValues(ShopUrl, "Suburb", Suburb);
             conn.UpdateStringValues(ShopUrl, "Postcode", Postcode);
-
+            conn.UpdateIntergerValues(ShopUrl, "CountryCode", CountryCode);
             //from store data forming json for front-end
             StoreRecord details = conn.GetShopRecord(ShopUrl);
             JavaScriptSerializer jsonSerialiser = new JavaScriptSerializer();

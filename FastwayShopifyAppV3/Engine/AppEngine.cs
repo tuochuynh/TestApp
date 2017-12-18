@@ -110,6 +110,11 @@ namespace FastwayShopifyAppV3.Engine
                             i.Postcode = result[result.GetOrdinal("Postcode")] as string;
                             i.FastwayApiKey = result[result.GetOrdinal("FastwayApiKey")] as string;
                             i.ShopifyToken = result[result.GetOrdinal("ShopifyToken")] as string;
+                            i.CountryCode = result[result.GetOrdinal("CountryCode")] as int? ?? -1;
+                            //if (result.GetInt32(result.GetOrdinal("CountryCode")))
+                            //{
+                            //    i.CountryCode = result.GetInt32(result.GetOrdinal("CountryCode"));
+                            //}
                             thisShop.Add(i);
                         }
                         result.Close();
@@ -223,6 +228,7 @@ namespace FastwayShopifyAppV3.Engine
         public string FastwayApiKey { get; set; }
         public int AppInstalled { get; set; }
         public int AppRemoved { get; set; }
+        public int CountryCode { get; set; }
     }
     /// <summary>
     /// Class to manage Shopify API calls
