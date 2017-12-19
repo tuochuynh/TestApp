@@ -80,6 +80,7 @@ namespace FastwayShopifyAppV3.Controllers
             DbEngine conn = new DbEngine();
             //Get Shopify Token to access Shopify API
             string token = conn.GetStringValues(shop, "ShopifyToken");
+            int cCode = conn.GetIntergerValues(shop, "CountryCode");
             //ShopifyAPI object
             ShopifyAPI api = new ShopifyAPI();
             //foreach order number from list, get a list of delivery details
@@ -138,7 +139,8 @@ namespace FastwayShopifyAppV3.Controllers
             
 
             Response.Write("<input id='shopUrl' type='hidden' value='" + shop + "'>");//passing shopUrl to View() for further queries
-            Response.Write("<input id='orderDetails' type='hidden' value='" + orders/*orderJson*/ + "'>");//passing orderIds to View() for further queries
+            Response.Write("<input id='countryCode' type='hidden' value='" + cCode + "'>");//passing countryCode to View() for further queries
+            Response.Write("<input id='orderDetails' type='hidden' value='" + orders + "'>");//passing orderIds to View() for further queries
             Response.Write("<input id='deliveryAddress' type='hidden' value='" + address + "'>");//passing address to View() for further queries
             if(emails.Count>=1) Response.Write("<input id='emailAddress' type='hidden' value='" + emails[0] + "'>");//passing email address
             if (note != "") Response.Write("<input id='specialInstruction' type='hidden' value='" + note + "'>");
@@ -189,6 +191,7 @@ namespace FastwayShopifyAppV3.Controllers
             label.toPostcode = Postcode;
             //populate parcel details for query
             label.weight = (double)Weight;
+            label.countryCode = storeDetails.CountryCode;
             //FastwayAPI object for service query
             FastwayAPI newApiCall = new FastwayAPI();
             //Call fastway API and receive back a list of available service
@@ -258,6 +261,7 @@ namespace FastwayShopifyAppV3.Controllers
             label.fromPostcode = conn.GetStringValues(ShopUrl, "Postcode");
             label.fromCity = conn.GetStringValues(ShopUrl, "Suburb");
             label.fromCompany = conn.GetStringValues(ShopUrl, "StoreName");
+            label.countryCode = conn.GetIntergerValues(ShopUrl, "CountryCode");
             //parse delivery details            
             JObject d = JObject.Parse(DeliveryDetails);
             //assign receiver details
@@ -362,6 +366,7 @@ namespace FastwayShopifyAppV3.Controllers
             label.fromPostcode = conn.GetStringValues(ShopUrl, "Postcode");
             label.fromCity = conn.GetStringValues(ShopUrl, "Suburb");
             label.fromCompany = conn.GetStringValues(ShopUrl, "StoreName");
+            label.countryCode = conn.GetIntergerValues(ShopUrl, "CountryCode");
             //parse delivery details            
             JObject d = JObject.Parse(DeliveryDetails);
             //assign receiver details

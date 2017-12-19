@@ -111,10 +111,6 @@ namespace FastwayShopifyAppV3.Engine
                             i.FastwayApiKey = result[result.GetOrdinal("FastwayApiKey")] as string;
                             i.ShopifyToken = result[result.GetOrdinal("ShopifyToken")] as string;
                             i.CountryCode = result[result.GetOrdinal("CountryCode")] as int? ?? -1;
-                            //if (result.GetInt32(result.GetOrdinal("CountryCode")))
-                            //{
-                            //    i.CountryCode = result.GetInt32(result.GetOrdinal("CountryCode"));
-                            //}
                             thisShop.Add(i);
                         }
                         result.Close();
@@ -292,10 +288,27 @@ namespace FastwayShopifyAppV3.Engine
         /// <returns>fulfillment id as string</returns>
         public async Task<string> NewFulfillment(string shop, string token, string orderId, string labelNumbers)
         {
+            var trackingCompany = "";
+            var trackingUrl = "";
+
+            DbEngine conn = new DbEngine();
+            int cCode = conn.GetIntergerValues(shop, "CountryCode");
+
+            switch (cCode) {
+                case 1:
+                    trackingCompany = "Fastway Couriers (Australia)";
+                    trackingUrl = "https://www.fastway.com.au/tools/track?l=";
+                    break;
+                case 6:
+                    trackingCompany = "Fastway Couriers (NZ) Ltd.";
+                    trackingUrl = "https://www.fastway.co.nz/track/track-your-parcel?l=";
+                    break;
+            }
+            
             //creating template for fulfillment details
             var fulfillment = new Fulfillment()
             {
-                TrackingCompany = "Fastway Courier (NZ) Ltd.",
+                TrackingCompany = trackingCompany,
             };
 
             if (labelNumbers.Contains(","))
@@ -307,13 +320,13 @@ namespace FastwayShopifyAppV3.Engine
                 List<string> trackingUrls = new List<string>();
                 foreach (string number in trackingNumbers)
                 {
-                    trackingUrls.Add("http://fastway.co.nz/track/track-your-parcel?l=" + number);
+                    trackingUrls.Add(trackingUrl + number);
                 }
                 fulfillment.TrackingUrls = trackingUrls;
             } else
             {// only one tracking number
                 fulfillment.TrackingNumber = labelNumbers;
-                fulfillment.TrackingUrl = "http://fastway.co.nz/track/track-your-parcel?l=" + labelNumbers;
+                fulfillment.TrackingUrl = trackingUrl + labelNumbers;
             }
             //fulfillmentservice object to create fulfillment
             var service = new FulfillmentService(shop, token);
@@ -335,10 +348,30 @@ namespace FastwayShopifyAppV3.Engine
         {
             //FulfillmentService object to query
             var service = new FulfillmentService(shop, token);
+
+            var trackingCompany = "";
+            var trackingUrl = "";
+
+            DbEngine conn = new DbEngine();
+            int cCode = conn.GetIntergerValues(shop, "CountryCode");
+
+            switch (cCode)
+            {
+                case 1:
+                    trackingCompany = "Fastway Couriers (Australia)";
+                    trackingUrl = "https://www.fastway.com.au/tools/track?l=";
+                    break;
+                case 6:
+                    trackingCompany = "Fastway Couriers (NZ) Ltd.";
+                    trackingUrl = "https://www.fastway.co.nz/track/track-your-parcel?l=";
+                    break;
+            }
+
+
             //Fulfillment template
             var fulfillment = new Fulfillment()
             {
-                TrackingCompany = "Fastway Courier (NZ) Ltd.",
+                TrackingCompany = trackingCompany,
             };
             
             if (labelNumbers.Contains(","))
@@ -348,14 +381,14 @@ namespace FastwayShopifyAppV3.Engine
                 List<string> trackingUrls = new List<string>();
                 foreach (string number in trackingNumbers)
                 {
-                    trackingUrls.Add("http://fastway.co.nz/track/track-your-parcel?l=" + number);
+                    trackingUrls.Add(trackingUrl + number);
                 }
                 fulfillment.TrackingUrls = trackingUrls;
             }
             else
             {//one label number
                 fulfillment.TrackingNumber = labelNumbers;
-                fulfillment.TrackingUrl = "http://fastway.co.nz/track/track-your-parcel?l=" + labelNumbers;
+                fulfillment.TrackingUrl = trackingUrl + labelNumbers;
             }
             //update fulfillment with privided data
             fulfillment = await service.UpdateAsync(Convert.ToInt64(orderId), Convert.ToInt64(fulfillmentId), fulfillment);
@@ -426,6 +459,8 @@ namespace FastwayShopifyAppV3.Engine
 
             public string labelDate;
 
+            public int countryCode;
+
             public string printType;
         }
         /// <summary>
@@ -456,7 +491,7 @@ namespace FastwayShopifyAppV3.Engine
             request.AddParameter("DeliveryTown", details.toCity);
 
             request.AddParameter("WeightInKg", details.weight);
-            request.AddParameter("CountryCode", "6"); // NEED TO CHECK this if using for other countries
+            request.AddParameter("CountryCode", details.countryCode); // NEED TO CHECK this if using for other countries
 
             request.AddParameter("RequiresPickup", "False"); //will turn to true in live
 
@@ -674,7 +709,7 @@ namespace FastwayShopifyAppV3.Engine
             request.AddParameter("fromCity ", labels[0].fromCity);
             request.AddParameter("fromPhone ", labels[0].fromPhone);
 
-            request.AddParameter("labelDate", DateTime.Today.ToString("MM/dd/yyyy"));
+            request.AddParameter("labelDate", DateTime.Today.ToString("dd/MM/yyyy"));
             request.AddParameter("destRF", labels[0].toRfName);
 
             request.AddParameter("Type", "Image");
@@ -753,7 +788,7 @@ namespace FastwayShopifyAppV3.Engine
                     {
                         requestRural.AddParameter(string.Concat("items[", l, "].colour"), "RURAL");
                         requestRural.AddParameter(string.Concat("items[", l, "].labelNumber"), labels[l].ruralNumber);
-                        requestRural.AddParameter(string.Concat("items[", l, "].weight"), labels[l].weight);
+                        requestRural.AddParameter(string.Concat("items[", l, "].weight"), labels[l].weight + " kg");
                         requestRural.AddParameter("customerReference", labels[l].reference);
                     }
 
@@ -817,7 +852,7 @@ namespace FastwayShopifyAppV3.Engine
                     {
                         requestSaturday.AddParameter(string.Concat("items[", l, "].colour"), "SATURDAY");
                         requestSaturday.AddParameter(string.Concat("items[", l, "].labelNumber"), labels[l].saturdayNumber);
-                        requestSaturday.AddParameter(string.Concat("items[", l, "].weight"), labels[l].weight);
+                        requestSaturday.AddParameter(string.Concat("items[", l, "].weight"), labels[l].weight + " kg");
                         requestSaturday.AddParameter("customerReference", labels[l].reference);
                     }
 
@@ -886,7 +921,7 @@ namespace FastwayShopifyAppV3.Engine
             request.AddParameter("DeliveryTown", details.toCity);
 
             request.AddParameter("WeightInKg", details.weight);
-            request.AddParameter("CountryCode", "6");
+            request.AddParameter("CountryCode", details.countryCode);
 
             if (details.toContactName != "")
             {
@@ -950,7 +985,7 @@ namespace FastwayShopifyAppV3.Engine
             request.AddParameter("DeliveryTown", details.toCity);
 
             request.AddParameter("WeightInKg", details.weight);
-            request.AddParameter("CountryCode", "6");
+            request.AddParameter("CountryCode", details.countryCode);
 
             if (details.toContactName != "")
             {

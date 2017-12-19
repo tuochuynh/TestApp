@@ -166,7 +166,6 @@
 
 
 <script type="text/javascript">
-    $("#testCbx").bootstrapSwitch();
     document.getElementById('load').style.visibility = "hidden";
     //add first package
     addPackage();
@@ -331,7 +330,32 @@
             select.onchange = function () {//when packaging type changed, reset package details
                 document.getElementById("items" + k).value = 1;
                 if (document.getElementById('packaging' + k).value != "Parcel") {
-                    document.getElementById("weight" + k).value = 5;
+                    //Default Weight for satchel is 1 (avoid error with Australia)
+                    var cCode = document.getElementById("countryCode").value;
+
+                    switch (cCode) {
+                        case "1":
+                            switch (document.getElementById('packaging' + k).value) {
+                                case "SAT-NAT-A5":
+                                    document.getElementById("weight" + k).value = 0.5;
+                                    break;
+                                case "SAT-NAT-A4":
+                                    document.getElementById("weight" + k).value = 1;
+                                    break;
+                                case "SAT-NAT-A3":
+                                    document.getElementById("weight" + k).value = 3;
+                                    break;
+                                case "SAT-NAT-A2":
+                                    document.getElementById("weight" + k).value = 5;
+                                    break;
+                            }
+                            break;
+                        case "6":
+                            document.getElementById("weight" + k).value = 5;
+                            break;
+                    }
+
+                    
                     document.getElementById("totalCost" + k).value = "";
                     document.getElementById("extra" + k).innerHTML = "";
                     serviceQuery(document.getElementById("weight" + k));
@@ -343,7 +367,15 @@
                 updateTotalCost();
             }
             //text array to create options for select box
-            var options = ["Parcel", "Satchel DL", "Satchel A5", "Satchel A4", "Satchel A3", "Satchel A2"];
+            var countryCode = document.getElementById("countryCode").value;
+            switch (countryCode) {
+                case "1":
+                    var options = ["Parcel", "Satchel A5", "Satchel A4", "Satchel A3", "Satchel A2"];
+                    break;
+                default:
+                    var options = ["Parcel", "Satchel DL", "Satchel A5", "Satchel A4", "Satchel A3", "Satchel A2"];
+                    break;
+            }
             for (var l = 0; l < options.length; l++) {
                 var option = document.createElement("option");
                 option.text = options[l];
