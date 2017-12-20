@@ -697,6 +697,7 @@ namespace FastwayShopifyAppV3.Engine
 
             request.AddParameter("toCompany", labels[0].toCompany);
             request.AddParameter("toAddress1", labels[0].toAddress1);
+            request.AddParameter("toAddress2", labels[0].toAddress2);
             request.AddParameter("toCity", labels[0].toCity);
             request.AddParameter("toPostCode", labels[0].toPostcode);
 
@@ -709,7 +710,7 @@ namespace FastwayShopifyAppV3.Engine
             request.AddParameter("fromCity ", labels[0].fromCity);
             request.AddParameter("fromPhone ", labels[0].fromPhone);
 
-            request.AddParameter("labelDate", DateTime.Today.ToString("dd/MM/yyyy"));
+            request.AddParameter("labelDate", DateTime.Now.AddMinutes(720).ToString("dd/MM/yyyy"));
             request.AddParameter("destRF", labels[0].toRfName);
 
             request.AddParameter("Type", "Image");
@@ -753,7 +754,7 @@ namespace FastwayShopifyAppV3.Engine
                     gfx.DrawImage(image, 0, 0, 285, 435);
                 }
 
-                if (labels[0].ruralNumber != null & labels[0].ruralNumber != "")
+                if (labels[0].ruralNumber != null && labels[0].ruralNumber != "")
                 {
                     var clientRural = new RestClient();
                     clientRural.BaseUrl = new Uri("http://nz.api.fastway.org/v2/");
@@ -767,6 +768,7 @@ namespace FastwayShopifyAppV3.Engine
 
                     requestRural.AddParameter("toCompany", labels[0].toCompany);
                     requestRural.AddParameter("toAddress1", labels[0].toAddress1);
+                    requestRural.AddParameter("toAddress2", labels[0].toAddress2);
                     requestRural.AddParameter("toCity", labels[0].toCity);
                     requestRural.AddParameter("toPostCode", labels[0].toPostcode);
 
@@ -779,7 +781,7 @@ namespace FastwayShopifyAppV3.Engine
                     requestRural.AddParameter("fromCity ", labels[0].fromCity);
                     requestRural.AddParameter("fromPhone ", labels[0].fromPhone);
 
-                    requestRural.AddParameter("labelDate", DateTime.Today.ToString("MM/dd/yyyy"));
+                    requestRural.AddParameter("labelDate", DateTime.Now.AddMinutes(720).ToString("dd/MM/yyyy"));
                     requestRural.AddParameter("destRF", labels[0].toRfName);
 
                     requestRural.AddParameter("Type", "Image");
@@ -815,9 +817,9 @@ namespace FastwayShopifyAppV3.Engine
                         gfx.DrawImage(image, 0, 0, 285, 435);
                     }
                 }
+                
 
-
-                if (labels[0].saturdayNumber != null & labels[0].saturdayNumber != "")
+                if (labels[0].saturdayNumber != null && labels[0].saturdayNumber != "")
                 {
                     var clientSaturday = new RestClient();
                     clientSaturday.BaseUrl = new Uri("http://nz.api.fastway.org/v2/");
@@ -831,6 +833,7 @@ namespace FastwayShopifyAppV3.Engine
 
                     requestSaturday.AddParameter("toCompany", labels[0].toCompany);
                     requestSaturday.AddParameter("toAddress1", labels[0].toAddress1);
+                    requestSaturday.AddParameter("toAddress2", labels[0].toAddress2);
                     requestSaturday.AddParameter("toCity", labels[0].toCity);
                     requestSaturday.AddParameter("toPostCode", labels[0].toPostcode);
 
@@ -843,7 +846,7 @@ namespace FastwayShopifyAppV3.Engine
                     requestSaturday.AddParameter("fromCity ", labels[0].fromCity);
                     requestSaturday.AddParameter("fromPhone ", labels[0].fromPhone);
 
-                    requestSaturday.AddParameter("labelDate", DateTime.Today.ToString("MM/dd/yyyy"));
+                    requestSaturday.AddParameter("labelDate", DateTime.Now.AddMinutes(720).ToString("dd/MM/yyyy"));
                     requestSaturday.AddParameter("destRF", labels[0].toRfName);
 
                     requestSaturday.AddParameter("Type", "Image");
@@ -981,6 +984,7 @@ namespace FastwayShopifyAppV3.Engine
 
             request.AddParameter("DeliveryContactName", details.toCompany);
             request.AddParameter("DeliveryAddr1", details.toAddress1);
+            //request.AddParameter("DeliveryAddr2", details.toAddress2);
             request.AddParameter("DeliveryPostcode", details.toPostcode);
             request.AddParameter("DeliveryTown", details.toCity);
 
@@ -1006,9 +1010,9 @@ namespace FastwayShopifyAppV3.Engine
             //Service to be used, this is base on servicequery method
             request.AddParameter("LabelColour", details.labelColour);
 
-            if (details.saturday == true)
+            if (details.saturday)
             {
-                request.AddParameter("SaturdayDelivery", true);
+                request.AddParameter("SaturdayDelivery", "true");
             }
             //execute API calls await for response
             IRestResponse response = client.Execute(request);

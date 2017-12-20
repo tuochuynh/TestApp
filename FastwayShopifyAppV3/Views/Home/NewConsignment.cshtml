@@ -29,10 +29,10 @@
                             <label>Address line 1:<span style="color:red;font-weight:bold">*</span></label>
                             <input id="tbxDeliveryAddress" class="form-control" placeholder="Address line 1" type="text" style="" />
                         </div>
-                        @*<div class="address">
+                        <div class="address">
                             <label>Address line 2:</label>
-                            <input id="tbxDeliveryAddress2" class="form-control" placeholder="Address line 1" type="text" style="" />
-                        </div>*@
+                            <input id="tbxDeliveryAddress1" class="form-control" placeholder="Address line 1" type="text" style="" />
+                        </div>
                         <div class="row">
                             <div class="address col-md-6">
                                 <label>Suburb:<span style="color:red;font-weight:bold">*</span></label>
@@ -187,6 +187,7 @@
             document.getElementById('tbxCustomerName').value = addressDetails.Name;
         }
         document.getElementById('tbxDeliveryAddress').value = addressDetails.Address1;
+        document.getElementById('tbxDeliveryAddress1').value = addressDetails.Address2;
         document.getElementById('tbxDeliveryCity').value = addressDetails.City;
         document.getElementById('tbxDeliveryPostcode').value = addressDetails.Zip;
         document.getElementById('tbxRegion').value = addressDetails.Province;
@@ -237,6 +238,7 @@
             var parcelDetails = {
                 ShopUrl: document.getElementById('shopUrl').value,
                 Address1: document.getElementById('tbxDeliveryAddress').value,
+                Address2: document.getElementById('tbxDeliveryAddress1').value,
                 Suburb: document.getElementById('tbxDeliveryCity').value,
                 Postcode: document.getElementById('tbxDeliveryPostcode').value,
                 Region: document.getElementById('tbxRegion').value,
@@ -533,7 +535,7 @@
     function enableAddress() {
         document.getElementById('tbxCustomerName').disabled = false;
         document.getElementById('tbxDeliveryAddress').disabled = false;
-        //document.getElementById('tbxDeliveryAddress2').disabled = false;
+        document.getElementById('tbxDeliveryAddress1').disabled = false;
         document.getElementById('tbxDeliveryCity').disabled = false;
         document.getElementById('tbxDeliveryPostcode').disabled = false;
         document.getElementById('tbxRegion').disabled = false;
@@ -542,7 +544,7 @@
     function disableAddress() {
         document.getElementById('tbxCustomerName').disabled = true;
         document.getElementById('tbxDeliveryAddress').disabled = true;
-        //document.getElementById('tbxDeliveryAddress2').disabled = true;
+        document.getElementById('tbxDeliveryAddress1').disabled = true;
         document.getElementById('tbxDeliveryCity').disabled = true;
         document.getElementById('tbxDeliveryPostcode').disabled = true;
         document.getElementById('tbxRegion').disabled = true;
@@ -557,9 +559,6 @@
         document.getElementById('spanTotal').innerHTML = "0.00";
         document.getElementById("satCbx").checked = false;
         document.getElementById("satFooter").style.display = "none";
-        
-        
-
     }
     //Check for required fields before query labels
     function addressCheck() {
@@ -595,6 +594,7 @@
 
                 var deliveryDetails = {
                     Address1: document.getElementById('tbxDeliveryAddress').value,
+                    Address2: document.getElementById('tbxDeliveryAddress1').value,
                     Suburb: document.getElementById('tbxDeliveryCity').value,
                     Postcode: document.getElementById('tbxDeliveryPostcode').value,
                     Company: document.getElementById('tbxCustomerName').value,
@@ -628,7 +628,7 @@
                     ShopUrl: document.getElementById('shopUrl').value,
                     DeliveryDetails: JSON.stringify(deliveryDetails),
                     PackagingDetails: packagingDetails,
-                    Saturday: document.getElementById("satCbx").checked
+                    Saturday: saturday
                 };
                 //ajax element to get label printed
                 document.getElementById('load').style.visibility = "visible";

@@ -148,16 +148,16 @@ namespace FastwayShopifyAppV3.Controllers
 
         }
 
-        public async Task<ActionResult> RePrintLabels(string shop, string id)
-        {
+        //public async Task<ActionResult> RePrintLabels(string shop, string id)
+        //{
 
 
 
-            Response.Write("<input id='shopUrl' value='" + shop + "'>");
-            Response.Write("<input id='orderid' value='" + id + "'>");
+        //    Response.Write("<input id='shopUrl' value='" + shop + "'>");
+        //    Response.Write("<input id='orderid' value='" + id + "'>");
 
-            return View();
-        }
+        //    return View();
+        //}
 
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace FastwayShopifyAppV3.Controllers
         /// <param name="Type">parcel type</param>
         /// <returns></returns>
         [HttpPost]
-        public JsonResult LabelQuery(string ShopUrl, string Address1, string Suburb, string Postcode, string Region, float Weight, string Type)
+        public JsonResult LabelQuery(string ShopUrl, string Address1, string Address2, string Suburb, string Postcode, string Region, float Weight, string Type)
         {
             //DB connection to query store details
             DbEngine newDB = new DbEngine();
@@ -187,6 +187,7 @@ namespace FastwayShopifyAppV3.Controllers
             label.fromPostcode = storeDetails.Postcode;
             //populate delivery details for query
             label.toAddress1 = Address1;
+            label.toAddress2 = Address2;
             label.toCity = Suburb;
             label.toPostcode = Postcode;
             //populate parcel details for query
@@ -224,8 +225,7 @@ namespace FastwayShopifyAppV3.Controllers
                             TotalCost = service.CostexgstTotalChargeToEndUser,
                             Rural = service.RuralLabelCostExgst > 0 ? true : false,
                             Excess = service.ExcessLabelCount,
-                            Saturday = services.First().Saturday,
-                            Test1 = service.RuralLabelCostExgst
+                            Saturday = services.First().Saturday
                         });
                     }
                 } else
@@ -371,6 +371,7 @@ namespace FastwayShopifyAppV3.Controllers
             JObject d = JObject.Parse(DeliveryDetails);
             //assign receiver details
             label.toAddress1 = d["Address1"].ToString();
+            label.toAddress2 = d["Address2"].ToString();
             label.toPostcode = d["Postcode"].ToString();
             label.toCity = d["Suburb"].ToString();
             label.specialInstruction1 = d["SpecialInstruction1"].ToString();
