@@ -692,29 +692,10 @@ namespace FastwayShopifyAppV3.Engine
             //For printng labels
             request.Resource = "dynamiclabels/generatelabel";
 
+            this.RequestPopulating(request, labels[0]);
 
-            request.AddParameter("api_key", labels[0].apiKey);
-
-            request.AddParameter("toCompany", labels[0].toCompany);
-            request.AddParameter("toAddress1", labels[0].toAddress1);
             request.AddParameter("toAddress2", labels[0].toAddress2);
-            request.AddParameter("toCity", labels[0].toCity);
-            request.AddParameter("toPostCode", labels[0].toPostcode);
-
-            request.AddParameter("specialInstruction1", labels[0].specialInstruction1);
-            request.AddParameter("contactName", labels[0].toContactName);
-            request.AddParameter("contactPhone", labels[0].toContactPhone);
-
-            request.AddParameter("fromCompanyName", labels[0].fromCompany);
-            request.AddParameter("fromAddress1", labels[0].fromAddress1);
-            request.AddParameter("fromCity ", labels[0].fromCity);
-            request.AddParameter("fromPhone ", labels[0].fromPhone);
-
-            request.AddParameter("labelDate", DateTime.Now.AddMinutes(720).ToString("dd/MM/yyyy"));
-            request.AddParameter("destRF", labels[0].toRfName);
-
-            request.AddParameter("Type", "Image");
-
+            
             for (int i = 0; i < labels.Count; i++)
             {
                 request.AddParameter(string.Concat("items[", i, "].colour"), labels[i].labelColour);
@@ -763,28 +744,10 @@ namespace FastwayShopifyAppV3.Engine
 
                     requestRural.Resource = "dynamiclabels/generatelabel";
 
-
-                    requestRural.AddParameter("api_key", labels[0].apiKey);
-
-                    requestRural.AddParameter("toCompany", labels[0].toCompany);
-                    requestRural.AddParameter("toAddress1", labels[0].toAddress1);
+                    this.RequestPopulating(requestRural, labels[0]);
+                    
                     requestRural.AddParameter("toAddress2", labels[0].toAddress2);
-                    requestRural.AddParameter("toCity", labels[0].toCity);
-                    requestRural.AddParameter("toPostCode", labels[0].toPostcode);
-
-                    requestRural.AddParameter("specialInstruction1", labels[0].specialInstruction1);
-                    requestRural.AddParameter("contactName", labels[0].toContactName);
-                    requestRural.AddParameter("contactPhone", labels[0].toContactPhone);
-
-                    requestRural.AddParameter("fromCompanyName", labels[0].fromCompany);
-                    requestRural.AddParameter("fromAddress1", labels[0].fromAddress1);
-                    requestRural.AddParameter("fromCity ", labels[0].fromCity);
-                    requestRural.AddParameter("fromPhone ", labels[0].fromPhone);
-
-                    requestRural.AddParameter("labelDate", DateTime.Now.AddMinutes(720).ToString("dd/MM/yyyy"));
-                    requestRural.AddParameter("destRF", labels[0].toRfName);
-
-                    requestRural.AddParameter("Type", "Image");
+                    
 
                     for (int l = 0; l < labels.Count; l++)
                     {
@@ -828,28 +791,10 @@ namespace FastwayShopifyAppV3.Engine
 
                     requestSaturday.Resource = "dynamiclabels/generatelabel";
 
-
-                    requestSaturday.AddParameter("api_key", labels[0].apiKey);
-
-                    requestSaturday.AddParameter("toCompany", labels[0].toCompany);
-                    requestSaturday.AddParameter("toAddress1", labels[0].toAddress1);
+                    this.RequestPopulating(requestSaturday, labels[0]);
+                    
                     requestSaturday.AddParameter("toAddress2", labels[0].toAddress2);
-                    requestSaturday.AddParameter("toCity", labels[0].toCity);
-                    requestSaturday.AddParameter("toPostCode", labels[0].toPostcode);
-
-                    requestSaturday.AddParameter("specialInstruction1", labels[0].specialInstruction1);
-                    requestSaturday.AddParameter("contactName", labels[0].toContactName);
-                    requestSaturday.AddParameter("contactPhone", labels[0].toContactPhone);
-
-                    requestSaturday.AddParameter("fromCompanyName", labels[0].fromCompany);
-                    requestSaturday.AddParameter("fromAddress1", labels[0].fromAddress1);
-                    requestSaturday.AddParameter("fromCity ", labels[0].fromCity);
-                    requestSaturday.AddParameter("fromPhone ", labels[0].fromPhone);
-
-                    requestSaturday.AddParameter("labelDate", DateTime.Now.AddMinutes(720).ToString("dd/MM/yyyy"));
-                    requestSaturday.AddParameter("destRF", labels[0].toRfName);
-
-                    requestSaturday.AddParameter("Type", "Image");
+                    
 
                     for (int l = 0; l < labels.Count; l++)
                     {
@@ -1038,6 +983,35 @@ namespace FastwayShopifyAppV3.Engine
             return details;
         }
 
+        /// <summary>
+        /// tidy up code to populate RestRequest to query label images
+        /// </summary>
+        /// <param name="req"></param>
+        /// <param name="label"></param>
+        public void RequestPopulating(RestRequest req, Labeldetails label)
+        {
+            req.AddParameter("api_key", label.apiKey);
+
+            req.AddParameter("toCompany", label.toCompany);
+            req.AddParameter("toAddress1", label.toAddress1);
+            //req.AddParameter("toAddress2", labels.toAddress2);
+            req.AddParameter("toCity", label.toCity);
+            req.AddParameter("toPostCode", label.toPostcode);
+
+            req.AddParameter("specialInstruction1", label.specialInstruction1);
+            req.AddParameter("contactName", label.toContactName);
+            req.AddParameter("contactPhone", label.toContactPhone);
+
+            req.AddParameter("fromCompanyName", label.fromCompany);
+            req.AddParameter("fromAddress1", label.fromAddress1);
+            req.AddParameter("fromCity ", label.fromCity);
+            req.AddParameter("fromPhone ", label.fromPhone);
+
+            req.AddParameter("labelDate", DateTime.Now.AddMinutes(720).ToString("dd/MM/yyyy"));
+            req.AddParameter("destRF", label.toRfName);
+
+            req.AddParameter("Type", "Image");
+        }
 
     }
     /// <summary>
@@ -1058,4 +1032,5 @@ namespace FastwayShopifyAppV3.Engine
             return kvps;
         }
     }
+
 }

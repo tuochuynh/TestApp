@@ -374,6 +374,7 @@ namespace FastwayShopifyAppV3.Controllers
             label.toAddress2 = d["Address2"].ToString();
             label.toPostcode = d["Postcode"].ToString();
             label.toCity = d["Suburb"].ToString();
+            
             label.specialInstruction1 = d["SpecialInstruction1"].ToString();
 
             if (d["Company"].ToString() != "")
