@@ -693,8 +693,11 @@ namespace FastwayShopifyAppV3.Engine
             request.Resource = "dynamiclabels/generatelabel";
 
             this.RequestPopulating(request, labels[0]);
-
-            request.AddParameter("toAddress2", labels[0].toAddress2);
+            if (labels[0].toAddress2 != "")
+            {
+                request.AddParameter("toAddress2", labels[0].toAddress2);
+            }
+            
             
             for (int i = 0; i < labels.Count; i++)
             {
@@ -702,7 +705,10 @@ namespace FastwayShopifyAppV3.Engine
                 request.AddParameter(string.Concat("items[", i, "].labelNumber"), labels[i].labelNumber);
                 request.AddParameter(string.Concat("items[", i, "].weight"), labels[i].weight + " kg");
                 request.AddParameter(string.Concat("items[", i, "].numberOfExcess"), labels[i].excess);
-                request.AddParameter("customerReference", labels[i].reference);
+                if (labels[i].reference != "")
+                {
+                    request.AddParameter("customerReference", labels[i].reference);
+                }
             }
 
             
@@ -745,8 +751,11 @@ namespace FastwayShopifyAppV3.Engine
                     requestRural.Resource = "dynamiclabels/generatelabel";
 
                     this.RequestPopulating(requestRural, labels[0]);
+                    if (labels[0].toAddress2 != "")
+                    {
+                        requestRural.AddParameter("toAddress2", labels[0].toAddress2);
+                    }
                     
-                    requestRural.AddParameter("toAddress2", labels[0].toAddress2);
                     
 
                     for (int l = 0; l < labels.Count; l++)
@@ -754,7 +763,10 @@ namespace FastwayShopifyAppV3.Engine
                         requestRural.AddParameter(string.Concat("items[", l, "].colour"), "RURAL");
                         requestRural.AddParameter(string.Concat("items[", l, "].labelNumber"), labels[l].ruralNumber);
                         requestRural.AddParameter(string.Concat("items[", l, "].weight"), labels[l].weight + " kg");
-                        requestRural.AddParameter("customerReference", labels[l].reference);
+                        if (labels[l].reference != "")
+                        {
+                            requestRural.AddParameter("customerReference", labels[l].reference);
+                        }
                     }
 
                     IRestResponse responseRural = clientRural.Execute(requestRural);
@@ -793,7 +805,11 @@ namespace FastwayShopifyAppV3.Engine
 
                     this.RequestPopulating(requestSaturday, labels[0]);
                     
-                    requestSaturday.AddParameter("toAddress2", labels[0].toAddress2);
+                    if (labels[0].toAddress2 != "")
+                    {
+                        requestSaturday.AddParameter("toAddress2", labels[0].toAddress2);
+                    }
+                    
                     
 
                     for (int l = 0; l < labels.Count; l++)
@@ -801,7 +817,10 @@ namespace FastwayShopifyAppV3.Engine
                         requestSaturday.AddParameter(string.Concat("items[", l, "].colour"), "SATURDAY");
                         requestSaturday.AddParameter(string.Concat("items[", l, "].labelNumber"), labels[l].saturdayNumber);
                         requestSaturday.AddParameter(string.Concat("items[", l, "].weight"), labels[l].weight + " kg");
-                        requestSaturday.AddParameter("customerReference", labels[l].reference);
+                        if (labels[l].reference != "")
+                        {
+                            requestSaturday.AddParameter("customerReference", labels[l].reference);
+                        }
                     }
 
                     IRestResponse responseSaturday = clientSaturday.Execute(requestSaturday);
@@ -994,7 +1013,6 @@ namespace FastwayShopifyAppV3.Engine
 
             req.AddParameter("toCompany", label.toCompany);
             req.AddParameter("toAddress1", label.toAddress1);
-            //req.AddParameter("toAddress2", labels.toAddress2);
             req.AddParameter("toCity", label.toCity);
             req.AddParameter("toPostCode", label.toPostcode);
 
@@ -1004,8 +1022,8 @@ namespace FastwayShopifyAppV3.Engine
 
             req.AddParameter("fromCompanyName", label.fromCompany);
             req.AddParameter("fromAddress1", label.fromAddress1);
-            req.AddParameter("fromCity ", label.fromCity);
-            req.AddParameter("fromPhone ", label.fromPhone);
+            req.AddParameter("fromCity", label.fromCity);
+            
 
             req.AddParameter("labelDate", DateTime.Now.AddMinutes(720).ToString("dd/MM/yyyy"));
             req.AddParameter("destRF", label.toRfName);
