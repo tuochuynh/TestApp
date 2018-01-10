@@ -360,7 +360,9 @@
                     
                     document.getElementById("totalCost" + k).value = "";
                     document.getElementById("extra" + k).innerHTML = "";
+                    if (!document.getElementById('tbxCustomerName').disabled) { disableAddress(); }
                     serviceQuery(document.getElementById("weight" + k));
+
                 } else {
                     document.getElementById("weight" + k).value = "";
                     document.getElementById("totalCost" + k).value = "";
@@ -442,7 +444,7 @@
                         serviceQuery(document.getElementById("weight" + k));
                     }
                 }
-            } else if (type == "weight") {//if Weight changed update cost and label discription
+            } else if (type == "weight") {//if Weight changed update cost and label description
                 input.setAttribute('type', 'number');
                 input.setAttribute('min', 0);
                 input.onchange = function () {
