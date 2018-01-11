@@ -906,6 +906,6 @@ input[type=number]::-webkit-outer-spin-button {
     height: 100%;
     position: absolute;
     z-index: 9999;
-    background: url("/Images/loading.gif") no-repeat 30% 40% rgba(0,0,0,0.25)
+    background: url("/Images/loading.gif") no-repeat 48% 48% rgba(0,0,0,0.25)
 }
 
