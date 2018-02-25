@@ -16,7 +16,6 @@ namespace FastwayShopifyAppV3.Controllers
 {
     public class HomeController : Controller
     {
-
         public object ShopifyApi { get; private set; }
 
         string appUrl = Engine.ShopifyAppEngine.ApplicationUrl;
@@ -347,7 +346,7 @@ namespace FastwayShopifyAppV3.Controllers
             }
         }
         /// <summary>
-        /// V2 of LabelPrinting using generate-label call instead of denerate-label-for-labelnumber
+        /// V2 of LabelPrinting using generate-label call instead of generate-label-for-labelnumber
         /// </summary>
         /// <param name="ShopUrl"></param>
         /// <param name="DeliveryDetails"></param>
@@ -559,8 +558,6 @@ namespace FastwayShopifyAppV3.Controllers
 
 
         }
-
-
-        
+               
     }
 }
