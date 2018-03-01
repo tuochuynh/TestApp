@@ -104,7 +104,7 @@ namespace FastwayShopifyAppV3.Controllers
                     DBConnection.UpdateStringValues(shop, "ShopifyToken", accessToken);
                 }
             } else
-            {
+            {//initiat a webhook to manage uninstalls
                 DBConnection.InsertNewShop(shop, accessToken);
                 var service = new WebhookService(shop, accessToken);
                 var hook = new Webhook()
